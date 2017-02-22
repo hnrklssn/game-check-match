@@ -37,16 +37,9 @@ a {
 
 .provider {
     display: inline-block;
-    width: 64px;
-    height: 64px;
     border-radius: 4px;
     outline: none;
 }
-.google { background: #D14836; }
-.twitter { background: #00ACED; }
-.yahoo { background: #731A8B; }
-.xing { background: #006567; }
-.vk { background: #567ca4; }
 .steam { background: #555555; }
 
 .social-providers,

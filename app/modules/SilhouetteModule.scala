@@ -95,27 +95,12 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
 
   /**
    * Provides the social provider registry.
-   *
-   * @param facebookProvider The Facebook provider implementation.
-   * @param googleProvider The Google provider implementation.
-   * @param vkProvider The VK provider implementation.
-   * @param clefProvider The Clef provider implementation.
-   * @param twitterProvider The Twitter provider implementation.
-   * @param xingProvider The Xing provider implementation.
-   * @param yahooProvider The Yahoo provider implementation.
+   * @param steamProvider The Yahoo provider implementation.
    * @return The Silhouette environment.
    */
   @Provides
   def provideSocialProviderRegistry(
-    facebookProvider: FacebookProvider,
-    googleProvider: GoogleProvider,
-    vkProvider: VKProvider,
-    clefProvider: ClefProvider,
-    twitterProvider: TwitterProvider,
-    xingProvider: XingProvider,
-    yahooProvider: YahooProvider,
     steamProvider: SteamProvider): SocialProviderRegistry = {
-
     SocialProviderRegistry(Seq(
       steamProvider
     ))

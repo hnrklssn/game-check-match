@@ -123,8 +123,8 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
       vkProvider,
       xingProvider,
       yahooProvider,
-      clefProvider /*,
-      steamProvider*/
+      clefProvider,
+      steamProvider
     ))
   }
 

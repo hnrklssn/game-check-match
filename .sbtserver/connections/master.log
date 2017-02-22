@@ -1,0 +1,31 @@
+New log file opened at Wed Feb 22 15:33:35 CET 2017 by 4731@henrik-swanky
+Taking next connection to: 45147
+New client attempting to connect on port: 40624-45147
+  Address = /127.0.1.1:45147
+This client on port 40624 has uuid 784785ba-f85f-4350-bae6-e34241dbc2ea configName activator humanReadableName Activator protocolVersion 3 featureTags Vector()
+Connected Clients: activator-784785ba-f85f-4350-bae6-e34241dbc2ea
+Taking next connection to: 45147
+Checking to see if clients are empty...
+We have 1 non-daemon clients, continuing serving connections.
+Taking next connection to: 45147
+New client attempting to connect on port: 40630-45147
+  Address = /127.0.1.1:45147
+Handshake exception on socket: 40630
+sbt.impl.ipc.HandshakeException: Unable to perform handshake
+	at sbt.impl.ipc.Peer.handshake(IPC.scala:46)
+	at sbt.impl.ipc.MultiClientServer.<init>(IPC.scala:150)
+	at sbt.server.SbtServerSocketHandler$$anon$1.run(SbtServerSocketHandler.scala:43)
+Caused by: java.io.EOFException
+	at java.io.DataInputStream.readInt(DataInputStream.java:392)
+	at sbt.impl.ipc.Peer.receive(IPC.scala:95)
+	at sbt.impl.ipc.Peer.handshake(IPC.scala:49)
+	... 2 more
+Taking next connection to: 45147
+New client attempting to connect on port: 40632-45147
+  Address = /127.0.1.1:45147
+This client on port 40632 has uuid 83025c2d-471d-498a-9a96-5474ffe1b79c configName play-fork-run humanReadableName Play Fork Run protocolVersion 1 featureTags Vector()
+Connected Clients: activator-784785ba-f85f-4350-bae6-e34241dbc2ea, play-fork-run-83025c2d-471d-498a-9a96-5474ffe1b79c
+Taking next connection to: 45147
+Checking to see if clients are empty...
+We have 1 non-daemon clients, continuing serving connections.
+Taking next connection to: 45147

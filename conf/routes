@@ -3,6 +3,7 @@
 # ~~~~
 
 # Home page
+GET         /users                           controllers.ProfileListController.users
 GET         /                                controllers.ApplicationController.index
 GET         /signOut                         controllers.ApplicationController.signOut
 GET         /authenticate/:provider          controllers.SocialAuthController.authenticate(provider)

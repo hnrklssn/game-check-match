@@ -410,7 +410,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     new YahooProvider(httpLayer, new PlayOpenIDService(client, settings), settings)
   }
 
-  @Provides
+  /*@Provides
   def provideSteamProvider(
     cacheLayer: CacheLayer,
     httpLayer: HTTPLayer,
@@ -419,5 +419,5 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
 
     val settings = configuration.underlying.as[OpenIDSettings]("silhouette.steam")
     new SteamProvider(httpLayer, new PlayOpenIDService(client, settings), settings)
-  }
+  }*/
 }

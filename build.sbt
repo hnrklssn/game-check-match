@@ -9,6 +9,8 @@ version := "4.0.0"
 scalaVersion := "2.11.8"
 
 resolvers += Resolver.jcenterRepo
+resolvers += Resolver.url("Maven Central", url("http://central.maven.org/maven2/"))
+resolvers += Resolver.sonatypeRepo("public")
 
 libraryDependencies ++= Seq(
   "com.mohiva" %% "play-silhouette" % "4.0.0",
@@ -22,10 +24,17 @@ libraryDependencies ++= Seq(
   "com.enragedginger" %% "akka-quartz-scheduler" % "1.5.0-akka-2.4.x",
   "com.adrianhurt" %% "play-bootstrap" % "1.0-P25-B3",
   "com.mohiva" %% "play-silhouette-testkit" % "4.0.0" % "test",
+  "com.lukaspradel" % "steam-web-api" % "1.2",
+  "com.typesafe.akka" %% "akka-stream" % "2.4.17",
+  "com.typesafe.akka" %% "akka-http" % "10.0.3",
   specs2 % Test,
   cache,
   filters
 )
+
+//skip downloading dependencies on every compile
+offline := true
+updateOptions := updateOptions.value.withCachedResolution(true)
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 

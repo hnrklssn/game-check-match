@@ -3,7 +3,9 @@
 # ~~~~
 
 # Home page
-GET         /users                           controllers.ProfileListController.users
+GET         /profile/:id                     controllers.ProfileInfoController.readProfile(id)
+GET         /add/:id                         controllers.ProfileInfoController.addProfile(id)
+#GET         /users                           controllers.ProfileListController.users
 GET         /                                controllers.ApplicationController.index
 GET         /signOut                         controllers.ApplicationController.signOut
 GET         /authenticate/:provider          controllers.SocialAuthController.authenticate(provider)

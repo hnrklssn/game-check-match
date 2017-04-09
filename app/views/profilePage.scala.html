@@ -1,5 +1,4 @@
-@(profileListsMap: Map[String, Seq[ServiceProfile]])(implicit webJarAssets: WebJarAssets)
-@import ServiceProfile.ordering
+@(profile: ServiceProfile, friends: Seq[ServiceProfile], games: Seq[Game])(implicit webJarAssets: WebJarAssets)
 
 <!DOCTYPE html>
 <html lang="en">
@@ -21,24 +20,35 @@
             <![endif]-->
     </head>
     <body>
-        <ul>
-        @for(service <- profileListsMap.keys) {
-            <li>
-                <h2>@service</h2>
-                <div class="profile-list">
-                @for(profile <- profileListsMap(service).sorted(ordering)) {
-                    <div class="profile-mini">
+                    <div class="profile-large">
                         <img class="avatar profile-item @profile.profileState" src="@profile.avatarUrl">
                         <div class="profile-text-container profile-item">
                             <div class="profile-name profile-item">@profile.displayName</div>
                             <div class="profile-status profile-item">Is currently... @profile.profileState</div>
                             <div class="profile-status profile-item">Is playing: @profile.currentlyPlaying.toString</div>
                         </div>
+                        <div class="friends">
+                            <ul>
+                                @for(friend <- friends) {
+                                    <li><div class="profile-mini">
+                                    <img class="avatar profile-item @friend.profileState" src="@friend.avatarUrl">
+                                    <div class="profile-text-container profile-item">
+                                        <div class="profile-name profile-item">@friend.displayName</div>
+                                        <div class="profile-status profile-item">Is currently... @friend.profileState</div>
+                                        <div class="profile-status profile-item">Is playing: @friend.currentlyPlaying.toString</div>
+                                    </div>
+                                    </div>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                        <div class="games">
+                            <ul>
+                            @for(game <- games) {
+                                <li>@game.toString</li>
+                            }
+                            </ul>
+                        </div>
                     </div>
-                }
-                </div>
-            </li>
-        }
-        </ul>
     </body>
 </html>

@@ -1,6 +1,7 @@
 package models
 
 import com.lukaspradel.steamapi.data.json.playersummaries.Player
+import reactivemongo.bson.{ BSONDocument, BSONDocumentWriter }
 
 /**
  * Created by henrik on 2017-02-26.

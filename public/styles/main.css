@@ -113,6 +113,46 @@ meter::-webkit-meter-bar {
     background-color: rgba(0,0,0,0.1);
 }
 
+.avatar {
+    border-style: solid;
+    border-width: 3px;
+    border-radius: 3px;
+    margin: 3px;
+    float: left;
+}
+.avatar.Online {
+    border-color: lawngreen;
+}
+.avatar.Offline {
+    border-color: gray;
+}
+.avatar.Away {
+    border-color: yellow;
+}
+
+.profile-name {
+    font-size: 22px;
+}
+
+.profile-mini {
+    border-style: solid;
+    border-width: 5px;
+    border-radius: 7px;
+    margin: 10px;
+    padding: 15px;
+    float: left;
+    width: 350px;
+    background-color: lightgray;
+}
+
+.profile-item {
+}
+
+.profile-text-container {
+    margin-left: 15px;
+    float: left;
+}
+
 meter[value="0"]::-webkit-meter-optimum-value,
 meter[value="1"]::-webkit-meter-optimum-value { background: red; }
 meter[value="2"]::-webkit-meter-optimum-value { background: orange; }

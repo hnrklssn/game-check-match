@@ -11,6 +11,10 @@ scalaVersion := "2.11.8"
 resolvers += Resolver.jcenterRepo
 resolvers += Resolver.url("Maven Central", url("http://central.maven.org/maven2/"))
 resolvers += Resolver.sonatypeRepo("public")
+resolvers ++= Seq(
+  "anormcypher" at "http://repo.anormcypher.org/",
+  "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/"
+)
 
 libraryDependencies ++= Seq(
   "com.mohiva" %% "play-silhouette" % "4.0.0",
@@ -27,6 +31,11 @@ libraryDependencies ++= Seq(
   "com.lukaspradel" % "steam-web-api" % "1.2",
   "com.typesafe.akka" %% "akka-stream" % "2.4.17",
   "com.typesafe.akka" %% "akka-http" % "10.0.3",
+  "com.websudos" %% "reactiveneo-dsl" % "0.3.0",
+  "com.websudos" %% "reactiveneo-testing" % "0.3.0",
+  "org.neo4j" % "neo4j-ogm" % "2.1.1",
+  "org.neo4j.driver" % "neo4j-java-driver" % "1.1.2",
+  "org.reactivemongo" %% "play2-reactivemongo" % "0.12.1",
   specs2 % Test,
   cache,
   filters
@@ -68,3 +77,61 @@ ScalariformKeys.preferences := ScalariformKeys.preferences.value
 
 
 fork in run := true
+
+initialCommands in console :=
+  """
+    |import com.lukaspradel.steamapi.webapi.client.SteamWebApiClient
+    |import com.lukaspradel.steamapi.webapi.request.builders.SteamWebApiRequestFactory
+    |import play.Configuration
+    |import javax.inject.Inject
+    |import scala.concurrent.duration._
+    |import collection.JavaConverters._
+    |import models.daos.SteamUserDAO.SteamId
+    |import akka.stream.scaladsl._
+    |import models.{ ServiceProfile, SteamProfile, SteamProfileFactory }
+    |import ServiceProfile._
+    |import akka.NotUsed
+    |import akka.stream.{ OverflowStrategy, SourceShape }
+    |import com.lukaspradel.steamapi.data.json.ownedgames.GetOwnedGames
+    |import com.lukaspradel.steamapi.data.json.playersummaries.GetPlayerSummaries
+    |import com.lukaspradel.steamapi.data.json.friendslist.GetFriendList
+    |import models.Game.GameId
+    |import utils.TimestampedFuture
+    |import akka.actor.ActorSystem
+    |import akka.stream.ActorMaterializer
+    |import org.neo4j.graphdb.factory._
+    |import org.neo4j.graphdb._
+    |import models._
+    |import daos._
+    |import org.neo4j.driver.v1._
+    |import org.neo4j.driver.v1.Values.parameters
+    |val key: String = "CA06C916B80AE819D4C61E1C3A548666"
+    |val client = new SteamWebApiClient.SteamWebApiClientBuilder(key).build()
+    |import scala.concurrent.ExecutionContext.Implicits.global
+    |val steamProfileFactory = new models.SteamProfileFactoryImpl
+    |def getUserSummaries(ids: List[SteamId]) = {
+    |  val req = SteamWebApiRequestFactory.createGetPlayerSummariesRequest(ids.asJava)
+    |  client.processRequest[GetPlayerSummaries](req)
+    |}
+    |def processSummaries(summaries: GetPlayerSummaries, steamProfileFactory: SteamProfileFactory): Seq[SteamProfile] = {
+    |  summaries.getResponse.getPlayers.asScala.map {
+    |    p: com.lukaspradel.steamapi.data.json.playersummaries.Player =>
+    |      steamProfileFactory(p)
+    |  }
+    |}
+    |def getOwnedGames(id: SteamId) = {
+    |  val req = SteamWebApiRequestFactory.createGetOwnedGamesRequest(id, true, true, List[Integer]().asJava)
+    |  client.processRequest[GetOwnedGames](req)
+    |}
+    |def processGames(games: GetOwnedGames) = {
+    |    games.getResponse.getGames.asScala.map { g => (Game.fromApiModel(g), g.getPlaytimeForever.toInt) }
+    |  }
+    |def getFriends(id: SteamId) = {
+    |    val req = SteamWebApiRequestFactory.createGetFriendListRequest(id)
+    |    client.processRequest[GetFriendList](req)
+    |  }
+    |def processFriends(friends: GetFriendList) = {
+    |    friends.getFriendslist.getFriends.asScala.map { f => (f.getSteamid, f.getFriendSince) }
+    |  }
+    |def steamIds: List[SteamId] = List("76561198030588344", "76561198013223031", "76561197998468755", "76561198200246905", "76561198050782985", "76561198098609179", "76561197996581718")
+  """.stripMargin

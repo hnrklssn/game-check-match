@@ -13,6 +13,15 @@ dist
 /.project
 /RUNNING_PID
 /.settings
-/bin
 /conf/application.prod.conf
 .sbtserver
+bin/
+/db
+.eclipse
+lib
+modules
+test-result
+server.pid
+*.eml
+dist
+.cache

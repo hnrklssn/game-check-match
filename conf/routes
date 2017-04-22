@@ -3,6 +3,8 @@
 # ~~~~
 
 # Home page
+GET         /game/:id                        controllers.RecommendationController.recByGame(id)
+GET         /rec/:id                         controllers.RecommendationController.recommendations(id)
 GET         /profile/:id                     controllers.ProfileInfoController.readProfile(id)
 GET         /add/:id                         controllers.ProfileInfoController.addProfile(id)
 #GET         /users                           controllers.ProfileListController.users

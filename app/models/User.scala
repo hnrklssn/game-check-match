@@ -13,16 +13,16 @@ import com.mohiva.play.silhouette.api.{ Identity, LoginInfo }
  * @param activated Indicates that the user has activated its registration.
  */
 case class User(
-                 userID: UUID,
-                 loginInfo: LoginInfo,
-                 avatarURL: Option[String],
-                 activated: Boolean) extends Identity {
+  userID: UUID,
+  loginInfo: LoginInfo,
+  avatarURL: Option[String],
+  activated: Boolean) extends Identity {
 
   /**
-    * Tries to construct a name.
-    *
-    * @return Maybe a name.
-    */
+   * Tries to construct a name.
+   *
+   * @return Maybe a name.
+   */
   def name = Some(loginInfo.providerKey) //steamID
 }
 

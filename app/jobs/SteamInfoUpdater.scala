@@ -3,16 +3,17 @@ package jobs
 import javax.inject.Inject
 
 import akka.actor._
+import akka.http.scaladsl.model.DateTime
 import jobs.SteamInfoUpdater._
 import models.daos.{ GameDAO, GraphObjects, ServiceProfileDAO, SteamUserDAO }
 import models.daos.SteamUserDAO.SteamId
 import models.services.ProfileGraphService
-import models.{ Game, SteamProfile }
+import models.{ Game, ServiceProfile, SteamProfile }
 import play.modules.reactivemongo.MongoController
 
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ Await, Future }
+import scala.concurrent.{ Await, Future, blocking }
 import scala.concurrent.duration._
 
 /**
@@ -30,23 +31,35 @@ class SteamInfoUpdater @Inject() (neo: ProfileGraphService, steamApi: SteamUserD
     }
     case RefreshAttributesAndStatus(users) => {
       Future {
-        steamApi.processSummaries(steamApi.getUserSummaries(users))
+        blocking {
+          steamApi.processSummaries(steamApi.getUserSummaries(users))
+        }
       }.onSuccess[Unit] {
-        case profiles: Seq[SteamProfile] => profiles.foreach {
-          profileDAO.save(_)
-          neo.mergeProfile(_)
+        case profiles: Seq[SteamProfile] => profiles.foreach { p =>
+          Future {
+            blocking {
+              profileDAO.save(p)
+              println(p)
+              neo.mergeProfile(p)
+            }
+          }
         }
       }
     }
     case RefreshGames(users) => {
       users.foreach { user =>
         Future {
-          steamApi.processGames(steamApi.getOwnedGames(user))
+          blocking {
+            steamApi.processGames(steamApi.getOwnedGames(user))
+          }
         }.onSuccess[Unit] {
-          case games: Seq[(Game, Int)] => {
+          case games: Seq[(Game, Int, Int)] => {
             games.grouped(GraphObjects.CYPHER_MAX).foreach(gameList =>
               Future {
-                neo.updateGames(user, gameList)
+                blocking {
+                  if (user == "76561198030588344") { println("dfffffffffffffff          sssssssssss lll!!!!!!!"); gameList.foreach(println) }
+                  neo.updateGames(user, gameList)
+                }
               }.onFailure { case e: Exception => log.error(e, e.getMessage) }
             )
             games.foreach(tuple => gameDAO.upsert(tuple._1))
@@ -58,12 +71,16 @@ class SteamInfoUpdater @Inject() (neo: ProfileGraphService, steamApi: SteamUserD
       users.foreach { user =>
         {
           Future {
-            steamApi.processFriends(steamApi.getFriends(user))
+            blocking {
+              steamApi.processFriends(steamApi.getFriends(user))
+            }
           }.onSuccess[Unit] {
             case friendTuples: Seq[(SteamId, Int)] => {
               friendTuples.grouped(GraphObjects.CYPHER_MAX).foreach(friendList =>
                 Future {
-                  neo.updateFriends(user, friendList)
+                  blocking {
+                    neo.updateFriends(user, friendList)
+                  }
                 }.onFailure { case e: Exception => log.error(e, e.getMessage) }
               )
               val friendIds = friendTuples.map(_._1)
@@ -79,12 +96,16 @@ class SteamInfoUpdater @Inject() (neo: ProfileGraphService, steamApi: SteamUserD
       users.foreach { user =>
         {
           Future {
-            steamApi.processFriends(steamApi.getFriends(user))
+            blocking {
+              steamApi.processFriends(steamApi.getFriends(user))
+            }
           }.onSuccess[Unit] {
             case friendTuples: Seq[(SteamId, Int)] => {
               friendTuples.grouped(GraphObjects.CYPHER_MAX).foreach(friendList =>
                 Future {
-                  println("!" + neo.updateFriends(user, friendList))
+                  blocking {
+                    println("!" + neo.updateFriends(user, friendList))
+                  }
                 }.onFailure { case e: Exception => log.error(e, e.getMessage) }
               )
             }
@@ -93,12 +114,13 @@ class SteamInfoUpdater @Inject() (neo: ProfileGraphService, steamApi: SteamUserD
       }
     }
   }
-  def userList: List[SteamId] = Await.result[List[String]](profileDAO.findAllUserIds, 5.seconds)
+  def userList: List[SteamId] = Await.result[List[String]](profileDAO.findAllUsers, 5.seconds)
+  //val userList: List[SteamId] = List("76561198030588344", "76561198013223031", "76561197998468755", "76561198200246905", "76561198050782985", "76561198098609179", "76561197996581718") //read from db or similar in future
   //self ! InitiateReload(userList)
   val cancellable =
     context.system.scheduler.schedule(
       0.milliseconds,
-      50.minutes,
+      60.minutes,
       self,
       InitiateReload(userList))
 }

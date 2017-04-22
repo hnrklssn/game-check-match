@@ -9,13 +9,13 @@ import models.{ ServiceProfile, SteamProfile }
 /**
  * Created by henrik on 2017-02-26.
  */
-class ServiceUserDao {
+//class ServiceUserDao {
 
-  /*@Provides
+/*@Provides
   def allUserSummariesProvider(@Inject steamUserSummaries: Source[Seq[SteamProfile], NotUsed]): Source[Seq[ServiceProfile], NotUsed] = {
     steamUserSummaries.buffer(1, OverflowStrategy.dropTail) //if several services in future, merge streams here
   }*/
-}
+//}
 
 object ServiceUserDAO {
   type serviceUserId = String

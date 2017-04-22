@@ -22,7 +22,7 @@ object ServiceProfile {
   implicit def ordering: Ordering[ServiceProfile] = Ordering.by { p: ServiceProfile => { (p.visible, p.currentlyPlaying, p.profileState, p.displayName) } }
   implicit def ordering2: Ordering[ProfileState] = Ordering.by(s => s.priority)
   type serviceUserId = String
-  trait ProfileState {
+  sealed trait ProfileState {
     def priority: Int
   }
   case object Online extends ProfileState { override def priority = 4 }
@@ -40,13 +40,13 @@ object ServiceProfile {
     override def read(bson: BSONDocument): ProfileState = profileStateFactory(bson.getAs[BSONNumberLike]("code").get.toInt)
   }
   def stateCode(state: ProfileState): Int = state match {
+    case Offline => 0
     case Online => 1
-    case Offline => 2
-    case Busy => 3
-    case Away => 4
-    case Snooze => 5
-    case LookingToTrade => 6
-    case LookingToPlay => 7
+    case Busy => 2
+    case Away => 3
+    case Snooze => 4
+    case LookingToTrade => 5
+    case LookingToPlay => 6
   }
 
   implicit object Writer extends BSONDocumentWriter[ServiceProfile] {

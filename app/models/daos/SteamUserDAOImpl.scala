@@ -11,7 +11,7 @@ import scala.concurrent.duration._
 import collection.JavaConverters._
 import models.daos.SteamUserDAO.SteamId
 import akka.stream.scaladsl._
-import models.{ Game, ServiceProfile, SteamProfile, SteamProfileFactory }
+import models._
 import ServiceProfile._
 import akka.NotUsed
 import akka.stream.{ OverflowStrategy, SourceShape }
@@ -20,6 +20,9 @@ import com.lukaspradel.steamapi.data.json.ownedgames.GetOwnedGames
 import com.lukaspradel.steamapi.data.json.playersummaries.GetPlayerSummaries
 import models.Game.GameId
 import utils.TimestampedFuture
+
+import scala.collection.parallel.mutable
+import scala.concurrent.Future
 
 /**
  * Created by henrik on 2017-02-22.
@@ -71,7 +74,7 @@ class SteamUserDAOImpl @Inject() ( /*config: Configuration,*/ steamProfileFactor
   }
 
   def processGames(games: GetOwnedGames) = {
-    games.getResponse.getGames.asScala.map { g => (Game.fromApiModel(g), g.getPlaytimeForever.toInt) }
+    games.getResponse.getGames.asScala.map { g => (Game.fromApiModel(g), g.getPlaytimeForever.toInt, g.getAdditionalProperties.getOrDefault("playtime_2weeks", "0").toString.toInt) }
   }
 
   def getFriends(id: SteamId) = {
@@ -86,6 +89,19 @@ class SteamUserDAOImpl @Inject() ( /*config: Configuration,*/ steamProfileFactor
   override def userStatus(id: SteamId): String = ???
 
   override def currentGame(id: SteamId): Option[GameId] = ???
+
+  /*val buffer = mutable.ParSet[SteamId]()
+  var waitStartTime: Option[LocalDateTime] = None
+  override def bufferFetchProfiles(ids: Iterable[SteamId]): Future[Seq[SteamProfile]] = {
+    if (buffer.size == 0) {
+      waitStartTime = Some(LocalDateTime.now())
+    }
+    buffer ++ ids
+    Future {
+      Seq(SteamProfileImpl("sdf", true, "sadf", "sdf", Online, NoGame))
+    }
+  }
+  maybe turn into actor in the future...*/
 }
 
 object SteamUserDAOImpl {

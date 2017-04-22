@@ -29,7 +29,7 @@ class SteamProfileFactoryImpl extends SteamProfileFactory {
     }
     val additional = profileData.getAdditionalProperties
     val currentGame: Game = if (additional.containsKey("gameid") && additional.containsKey("gameextrainfo")) {
-      Game(additional.get("gameid").asInstanceOf[GameId], additional.get("gameextrainfo").asInstanceOf[String], "testurlplschange")
+      Game(additional.get("gameid").asInstanceOf[GameId], additional.get("gameextrainfo").asInstanceOf[String], null, null)
     } else {
       NoGame
     }

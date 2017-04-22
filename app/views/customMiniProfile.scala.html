@@ -1,0 +1,11 @@
+@(profile: ServiceProfile)(extra: Html)
+
+<div class="profile-mini">
+    <img class="avatar profile-item @profile.profileState" src="@profile.avatarUrl">
+    <div class="profile-text-container profile-item">
+        <div class="profile-name profile-item truncate">@profile.displayName</div>
+        <div class="profile-status profile-item truncate">Is currently... @profile.profileState</div>
+        <div class="profile-status profile-item truncate">Is playing: @profile.currentlyPlaying</div>
+    </div>
+        @extra
+</div>

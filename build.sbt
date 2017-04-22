@@ -75,7 +75,6 @@ ScalariformKeys.preferences := ScalariformKeys.preferences.value
   .setPreference(DoubleIndentClassDeclaration, false)
   .setPreference(DanglingCloseParenthesis, Preserve)
 
-
 fork in run := true
 
 initialCommands in console :=
@@ -135,3 +134,9 @@ initialCommands in console :=
     |  }
     |def steamIds: List[SteamId] = List("76561198030588344", "76561198013223031", "76561197998468755", "76561198200246905", "76561198050782985", "76561198098609179", "76561197996581718")
   """.stripMargin
+
+fork in run := true
+
+fork in run := true
+
+fork in run := true

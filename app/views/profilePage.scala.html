@@ -21,33 +21,24 @@
     </head>
     <body>
                     <div class="profile-large">
-                        <img class="avatar profile-item @profile.profileState" src="@profile.avatarUrl">
-                        <div class="profile-text-container profile-item">
-                            <div class="profile-name profile-item">@profile.displayName</div>
-                            <div class="profile-status profile-item">Is currently... @profile.profileState</div>
-                            <div class="profile-status profile-item">Is playing: @profile.currentlyPlaying.toString</div>
+                        <div class="user-profile profile-mini">
+                            <img class="avatar profile-item @profile.profileState" src="@profile.avatarUrl">
+                            <div class="profile-text-container profile-item">
+                                <div class="profile-name profile-item">@profile.displayName</div>
+                                <div class="profile-status profile-item">Is currently... @profile.profileState</div>
+                                <div class="profile-status profile-item">Is playing: @profile.currentlyPlaying</div>
+                            </div>
                         </div>
-                        <div class="friends">
-                            <ul>
+                        <span class="friends">
                                 @for(friend <- friends) {
-                                    <li><div class="profile-mini">
-                                    <img class="avatar profile-item @friend.profileState" src="@friend.avatarUrl">
-                                    <div class="profile-text-container profile-item">
-                                        <div class="profile-name profile-item">@friend.displayName</div>
-                                        <div class="profile-status profile-item">Is currently... @friend.profileState</div>
-                                        <div class="profile-status profile-item">Is playing: @friend.currentlyPlaying.toString</div>
-                                    </div>
-                                    </div>
-                                    </li>
+                                    @simpleMiniProfile(friend)
                                 }
-                            </ul>
-                        </div>
+                        </span>
                         <div class="games">
-                            <ul>
                             @for(game <- games) {
-                                <li>@game.toString</li>
+                                @simpleGameMini(game)
+                                <br>
                             }
-                            </ul>
                         </div>
                     </div>
     </body>

@@ -2,18 +2,20 @@ package models
 
 import Game._
 import reactivemongo.bson.{ BSONDocument, BSONDocumentReader, BSONDocumentWriter }
+import scala.collection.JavaConverters._
 
 /**
  * Created by henrik on 2017-02-22.
  */
-sealed trait Game extends NodeEntity {
+sealed trait Game {
   def isDefined: Boolean
   def id: GameId
-  def imageUrl: String
+  def iconUrl: String
+  def logoUrl: String
 
-  override def cypher = s""":Game {id: "${id}", name: "$toString", imageUrl: "$imageUrl", isDefined: "$isDefined"}"""
+  //def cypher = s""":Game {id: "${id}", name: "$toString", imageUrl: "$imageUrl", isDefined: "$isDefined"}"""
 }
-case class SomeGame(id: GameId, name: String, imageUrl: String) extends Game {
+case class SomeGame(id: GameId, name: String, iconUrl: String, logoUrl: String) extends Game {
   override def toString: String = name
   override def isDefined: Boolean = true
 }
@@ -21,17 +23,21 @@ case object NoGame extends Game {
   override def id = ""
   override def toString: String = "Nothing"
   override def isDefined: Boolean = false
-  override def imageUrl: String = defaultImageUrl
+  override def iconUrl: String = defaultImageUrl
+  override def logoUrl = defaultImageUrl
 }
 object Game {
   implicit def ordering: Ordering[Game] = Ordering.by(g => (g.isDefined, g.toString))
-  def apply(id: GameId, name: String, imageUrl: String): Game = {
+  def apply(id: GameId, name: String, imageUrl: String, logoUrl: String): Game = {
     if (id == null || id == "" || name == null || name == "") { NoGame }
-    else if (imageUrl == null || imageUrl.isEmpty) {
-      SomeGame(id, name, defaultImageUrl)
-    } else { SomeGame(id, name, imageUrl) }
+    else if (imageUrl == null || imageUrl.isEmpty || logoUrl == null || logoUrl.isEmpty) {
+      SomeGame(id, name, defaultImageUrl, defaultImageUrl)
+    } else { SomeGame(id, name, imageUrl, logoUrl) }
   }
-  def fromApiModel(g: com.lukaspradel.steamapi.data.json.ownedgames.Game): Game = apply(g.getAppid.toString, g.getName, g.getImgIconUrl)
+  def fromApiModel(g: com.lukaspradel.steamapi.data.json.ownedgames.Game): Game = {
+    g.getAdditionalProperties.asScala.foreach(t => println(s"additionalprop: $t"))
+    apply(g.getAppid.toString, g.getName, g.getImgIconUrl, g.getImgLogoUrl)
+  }
   val defaultImageUrl = "placeholder.png"
   type GameId = String
 
@@ -40,14 +46,16 @@ object Game {
       "isDefined" -> game.isDefined,
       "id" -> game.id,
       "name" -> game.toString,
-      "imageUrl" -> game.imageUrl
+      "iconUrl" -> game.iconUrl,
+      "logoUrl" -> game.logoUrl
     )
   }
   implicit object Reader extends BSONDocumentReader[Game] {
     override def read(bson: BSONDocument): Game = apply(
       bson.getAs[String]("id").get,
       bson.getAs[String]("name").get,
-      bson.getAs[String]("imageUrl").get
+      bson.getAs[String]("iconUrl").get,
+      bson.getAs[String]("logoUrl").get
     )
   }
 }

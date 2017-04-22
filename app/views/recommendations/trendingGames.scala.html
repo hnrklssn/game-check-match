@@ -1,0 +1,25 @@
+@(games: Iterable[(Game, Iterable[ServiceProfile])])
+
+<div class="recommendation trending">
+    <h2>Games that are trending right now:</h2>
+    <div class="games">
+    @for((game, profiles) <- games) {
+        @customGameMini(game){<br />
+            <div class="friends-with-game">
+                You have
+                    <span class="list-hover" script="">
+                        @profiles.size friends
+                            <span class="hover-list">
+                                @for(profile <- profiles) {
+                                    <a href="@profile.avatarUrl" class="hover-list-link">@profile.displayName</a>
+                                    <br />
+                                }
+                            </span>
+                    </span>
+                 who own this game.
+
+            </div>
+        }
+    }
+    </div>
+</div>

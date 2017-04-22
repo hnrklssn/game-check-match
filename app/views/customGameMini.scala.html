@@ -1,0 +1,9 @@
+@(game: Game)(extra: Html)
+
+<div class="game-mini">
+    <img class="game-icon game-item" src="https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/@{game.id}/@{game.iconUrl}.jpg">
+    <div class="game-text-container">
+        <div class="game-title game-item truncate">@game</div>
+        @extra
+    </div>
+</div>

@@ -4,6 +4,7 @@ import java.util.UUID
 import javax.inject.Inject
 
 import com.mohiva.play.silhouette.api.LoginInfo
+import com.sun.glass.ui.InvokeLaterDispatcher
 import models.daos.SteamUserDAO.SteamId
 import models.{ ServiceProfile, User }
 
@@ -66,11 +67,11 @@ class ServiceProfileDAO @Inject() (val reactiveMongoApi: ReactiveMongoApi)(impli
     }
   }
 
-  def findAllUserIds: Future[List[String]] = {
+  def findAllUsers: Future[List[String]] = {
     profilesFuture.flatMap { collection =>
       // only fetch the id field for the result documents
       val projection = BSONDocument("id" -> 1)
-      collection.find(BSONDocument(), projection)
+      collection.find(BSONDocument("isRegistered" -> true), projection)
         .cursor[BSONDocument](ReadPreference.primary)
         .collect[List](1000, Cursor.FailOnError[List[BSONDocument]]())
     }.map { list =>
@@ -87,6 +88,12 @@ class ServiceProfileDAO @Inject() (val reactiveMongoApi: ReactiveMongoApi)(impli
   def save(profile: ServiceProfile): Future[Seq[WriteError]] = {
     println(s"saving $profile")
     profilesFuture.flatMap(_.update[BSONDocument, ServiceProfile](BSONDocument("id" -> profile.id), profile, upsert = true)).map(_.writeErrors)
+  }
+
+  def registerUser(profile: ServiceProfile): Future[Seq[WriteError]] = {
+    println(s"adding user $profile")
+    profilesFuture.flatMap(_.update[BSONDocument, BSONDocument](BSONDocument("id" -> profile.id), BSONDocument("$set" -> profile), upsert = true))
+    profilesFuture.flatMap(_.update[BSONDocument, BSONDocument](BSONDocument("id" -> profile.id), BSONDocument("$set" -> BSONDocument("isRegistered" -> true)))).map(_.writeErrors)
   }
 
 }

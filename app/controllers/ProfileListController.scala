@@ -32,7 +32,7 @@ class ProfileListController @Inject() (profileDAO: ServiceProfileDAO, silhouette
 
   def users(profiles: Seq[ServiceProfile]) = Action.async { implicit request =>
     println("Ping!")
-    val mapByServiceFuture = profileDAO.findAllUserIds
+    val mapByServiceFuture = profileDAO.findAllUsers
       .flatMap(l => profileDAO.bulkFind(l))
       .map(ps => Map("Steam" -> ps))
     mapByServiceFuture.map { m => Ok(views.html.inGame(m)) }

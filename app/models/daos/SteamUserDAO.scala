@@ -11,6 +11,8 @@ import com.lukaspradel.steamapi.webapi.request.builders.SteamWebApiRequestFactor
 import models.Game._
 import models.{ Game, SteamProfile, SteamProfileFactory }
 
+import scala.concurrent.Future
+
 /**
  * Created by henrik on 2017-02-22.
  */
@@ -21,8 +23,9 @@ trait SteamUserDAO {
   def userSummaries(ids: List[SteamId]): Source[Seq[SteamProfile], NotUsed]
   def getUserSummaries(ids: List[SteamId]): GetPlayerSummaries
   def processSummaries(summaries: GetPlayerSummaries): Seq[SteamProfile]
+  //def bufferFetchProfiles(ids: Iterable[SteamId]): Future[Seq[SteamProfile]]
   def getOwnedGames(id: SteamId): GetOwnedGames
-  def processGames(games: GetOwnedGames): Seq[(Game, Int)]
+  def processGames(games: GetOwnedGames): Seq[(Game, Int, Int)]
   def getFriends(id: SteamId): GetFriendList
   def processFriends(friends: GetFriendList): Seq[(SteamId, Int)]
 

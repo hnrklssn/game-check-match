@@ -1,0 +1,12 @@
+@(profiles: Iterable[(ServiceProfile, Game)])
+
+<div class="recommendation recent-play-time">
+    <h2>People who have favourite games in common with you:</h2>
+    <div>
+    @for((profile, game) <- profiles) {
+        @customMiniProfile(profile){
+            <div class="profile-text-container common-game">Because you both like @simpleGameMini(game)</div>
+        }
+    }
+    </div>
+</div>

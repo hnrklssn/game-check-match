@@ -2,6 +2,11 @@ body {
     padding-top: 50px;
     font-size: 16px;
     background: #f5f7f9;
+    text-align: center;
+}
+
+* {
+    box-sizing: content-box;
 }
 
 h1 {
@@ -115,9 +120,9 @@ meter::-webkit-meter-bar {
 
 .avatar {
     border-style: solid;
-    border-width: 3px;
-    border-radius: 3px;
-    margin: 3px;
+    border-width: 4px;
+    border-radius: 10px;
+    margin: 3px 0px 3px 15px;
     float: left;
 }
 .avatar.Online {
@@ -130,8 +135,25 @@ meter::-webkit-meter-bar {
     border-color: yellow;
 }
 
+.avatar.Snooze {
+    border-color: khaki;
+}
+
+.avatar.Busy{
+    border-color: crimson;
+}
+
+.avatar.LookingToTrade {
+    border-color: darkslateblue;
+}
+
+.avatar.LookingToPlay {
+    border-color: darkturquoise;
+}
+
 .profile-name {
     font-size: 22px;
+    max-width: 240px;
 }
 
 .profile-mini {
@@ -140,17 +162,154 @@ meter::-webkit-meter-bar {
     border-radius: 7px;
     margin: 10px;
     padding: 15px;
-    float: left;
-    width: 350px;
+    width: 355px;
     background-color: lightgray;
+    display: inline-block;
+}
+
+.profile-status {
+    max-width: 200px;
+
 }
 
 .profile-item {
 }
 
 .profile-text-container {
+    text-align: left;
     margin-left: 15px;
     float: left;
+}
+
+.profile-large {
+    width: auto;
+}
+
+.friends {
+    float: left;
+    width: 100%;
+}
+
+.game-icon {
+    border-style: solid;
+    border-width: 3px;
+    border-radius: 4px;
+    float: left;
+}
+
+.game-mini {
+    width: 290px;
+    display: inline-block;
+    align-items: center;
+    border-style: solid;
+    border-width: 3px;
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+    border-radius: 5px;
+    padding: 8px 15px;
+    margin: 7px 10px;
+    background-color: lightgray;
+    position: relative;
+    line-height: 38px;
+    text-align: left;
+}
+
+.profile-mini .game-mini {
+    margin: 7px 0px;
+}
+
+.games {
+    margin: 0 auto;
+    width: 700px;
+}
+
+.game-text-container {
+    vertical-align: middle;
+    display: inline-block;
+    line-height: normal;
+}
+
+.game-title {
+    font-size: 22px;
+    margin-left: 15px;
+    float: left;
+    max-width: 235px;
+}
+
+.user-profile {
+    display: inline-block;
+}
+
+.list-hover {
+    position: relative;
+    border-bottom: 1px dotted black;
+}
+
+.list-hover > .hover-list{
+    width: 120px;
+    top: 20px;
+    left: 50%;
+    margin-left: -60px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 1.0s, visibility 1.0s;
+}
+.list-hover:hover > .hover-list{
+    visibility: visible;
+    opacity: 1;
+}
+
+.list-hover:hover > .hover-list:after {
+    content: " ";
+    position: absolute;
+    bottom: 100%;  /* At the top of the tooltip */
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent black transparent;
+}
+
+.friends-with-game {
+    font-size: 11px;
+    float: left;
+    margin: 0 15px;
+}
+
+.truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hover-list-link {
+    border-bottom: 1px dotted;
+}
+
+.hover-list-link:hover {
+    border-bottom: hidden;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.common-game {
+    margin-top: 5px;
+    margin-bottom: -10px;
 }
 
 meter[value="0"]::-webkit-meter-optimum-value,

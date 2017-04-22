@@ -30,7 +30,7 @@ class ProfileInfoController @Inject() (steamUserDAO: SteamUserDAO, profileDAO: S
   //val userList: List[SteamId] = List("76561198030588344", "76561198013223031", "76561197998468755", "76561198200246905", "76561198050782985", "76561198098609179", "76561197996581718") //read from db or similar in future
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  val users = Await.result[mutable.Buffer[String]](profileDAO.findAllUserIds.map(_.toBuffer), 5.seconds)
+  val users = Await.result[mutable.Buffer[String]](profileDAO.findAllUsers.map(_.toBuffer), 5.seconds)
 
   def addProfile(id: String) = Action.async { implicit request =>
     println("Adding!")
@@ -39,26 +39,26 @@ class ProfileInfoController @Inject() (steamUserDAO: SteamUserDAO, profileDAO: S
     val profile = Future {
       steamUserDAO.processSummaries(steamUserDAO.getUserSummaries(List(id)))
     }
-    profile.flatMap(ps => profileDAO.save(ps.head).map { l => Ok(l.foldLeft("")((t: String, s: WriteError) => s"$t ${s.toString}")) })
+    profile.flatMap(ps => profileDAO.registerUser(ps.head).map { l => Ok(l.foldLeft("")((t: String, s: WriteError) => s"$t ${s.toString}")) })
   }
 
   def readProfile(id: String) = Action.async { implicit request =>
     println("Reading!")
     println(users)
     println(users.size)
-    val friends: Try[Future[List[ServiceProfile]]] = neo.getFriends(id).map { ids => profileDAO.bulkFind(ids.map { _._1 }.toList) }
-    val games: Try[Future[List[Game]]] = neo.getGames(id).map { ids => gameDAO.bulkFind(ids.map { _._1 }.toList) }
-    friends.foreach(_.onComplete(_.foreach(println)))
-    games.foreach(_.onComplete(_.foreach(println)))
-    friends.map { friendsFuture =>
-      games.map { gamesFuture =>
-        for {
-          fs <- friendsFuture
-          gs <- gamesFuture
-          profileOption <- profileDAO.find(id)
-        } yield profileOption.map { profile => Ok(views.html profilePage (profile, fs, gs)) }.get
-        //OrElse(NotFound(views.html.errors.notFoundPage()))
-      }
-    }.flatten.get
+    val friends: Future[List[ServiceProfile]] = neo.getFriends(id).flatMap { ids: Seq[(SteamId, Int)] =>
+      profileDAO.bulkFind(ids.map { _._1 }.toList)
+    }
+    val games: Future[List[Game]] = neo.getGames(id).flatMap { ids =>
+      gameDAO.bulkFind(ids.map { _._1 }.toList)
+    }
+    friends.onComplete(_.foreach(println))
+    games.onComplete(_.foreach(println))
+    for {
+      fs <- friends
+      gs <- games
+      profileOption <- profileDAO.find(id)
+    } yield profileOption.map { profile => Ok(views.html profilePage (profile, fs, gs)) }.get
+    //OrElse(NotFound(views.html.errors.notFoundPage()))
   }
 }

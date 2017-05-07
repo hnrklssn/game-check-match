@@ -1,19 +1,28 @@
 package models
+
 import ServiceProfile._
 import com.lukaspradel.steamapi.data.json.playersummaries.Player
+import com.mohiva.play.silhouette.api.LoginInfo
 import models.Game.GameId
+import utils.auth.LoginInfoConverters._
+
 /**
  * Created by henrik on 2017-02-23.
  */
 import SteamProfileImpl._
-case class SteamProfileImpl(id: steamUserId, visible: Boolean, displayName: String, avatarUrl: String, profileState: ProfileState, currentlyPlaying: Game) extends SteamProfile {
+case class SteamProfileImpl(id: steamUserId, visible: Boolean, displayName: String, avatarUrl: String, profileState: ProfileState, currentlyPlaying: Game, isRegistered: Boolean = false) extends SteamProfile {
   override def isInGame: Boolean = currentlyPlaying.isDefined
 
+  override def loginInfo = id.toLoginInfo
   def cypher = s""":SteamProfile {id: "$id", visible: "$visible", name: "$displayName", avatarUrl: "$avatarUrl"}"""
+
+  //override type Self = this.type
+
+  override def register: SteamProfile = this.copy(isRegistered = true)
 }
 
 object SteamProfileImpl {
-  type steamUserId = serviceUserId
+  type steamUserId = ServiceUserId
 }
 
 class SteamProfileFactoryImpl extends SteamProfileFactory {

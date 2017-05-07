@@ -3,8 +3,10 @@ package models.services
 import java.util.UUID
 import javax.inject.Inject
 
+import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.api.util.Clock
 import models.AuthToken
+import models.ServiceProfile.ServiceUserId
 import models.daos.AuthTokenDAO
 import org.joda.time.DateTimeZone
 import play.api.libs.concurrent.Execution.Implicits._
@@ -28,7 +30,7 @@ class AuthTokenServiceImpl @Inject() (authTokenDAO: AuthTokenDAO, clock: Clock) 
    * @param expiry The duration a token expires.
    * @return The saved auth token.
    */
-  def create(userID: UUID, expiry: FiniteDuration = 5 minutes) = {
+  def create(userID: LoginInfo, expiry: FiniteDuration = 5 minutes) = {
     val token = AuthToken(UUID.randomUUID(), userID, clock.now.withZone(DateTimeZone.UTC).plusSeconds(expiry.toSeconds.toInt))
     authTokenDAO.save(token)
   }
@@ -46,9 +48,9 @@ class AuthTokenServiceImpl @Inject() (authTokenDAO: AuthTokenDAO, clock: Clock) 
    *
    * @return The list of deleted tokens.
    */
-  /*def clean = authTokenDAO.findExpired(clock.now.withZone(DateTimeZone.UTC)).flatMap { tokens =>
+  def clean = authTokenDAO.findExpired(clock.now.withZone(DateTimeZone.UTC)).flatMap { tokens =>
     Future.sequence(tokens.map { token =>
       authTokenDAO.remove(token.id).map(_ => token)
     })
-  }*/
+  }
 }

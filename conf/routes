@@ -3,6 +3,7 @@
 # ~~~~
 
 # Home page
+GET         /profile                         controllers.ProfileInfoController.readProfileAuto()
 GET         /game/:id                        controllers.RecommendationController.recByGame(id)
 GET         /rec/:id                         controllers.RecommendationController.recommendations(id)
 GET         /profile/:id                     controllers.ProfileInfoController.readProfile(id)
@@ -15,7 +16,7 @@ GET         /authenticate/:provider          controllers.SocialAuthController.au
 GET         /signIn                          controllers.SignInController.view
 POST        /signIn                          controllers.SignInController.submit
 
-GET         /account/email/:email            controllers.ActivateAccountController.send(email: String)
+#GET         /account/email/:email            controllers.ActivateAccountController.send(email: String)
 GET         /account/activate/:token         controllers.ActivateAccountController.activate(token: java.util.UUID)
 
 # Map static resources from the /public folder to the /assets URL path

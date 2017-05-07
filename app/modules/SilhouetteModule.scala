@@ -21,17 +21,20 @@ import com.mohiva.play.silhouette.impl.providers.openid.services.PlayOpenIDServi
 import com.mohiva.play.silhouette.impl.services._
 import com.mohiva.play.silhouette.impl.util._
 import com.mohiva.play.silhouette.password.BCryptPasswordHasher
-import com.mohiva.play.silhouette.persistence.daos.{ DelegableAuthInfoDAO, InMemoryAuthInfoDAO }
+import com.mohiva.play.silhouette.persistence.daos.{ DelegableAuthInfoDAO, InMemoryAuthInfoDAO, MongoAuthInfoDAO }
 import com.mohiva.play.silhouette.persistence.repositories.DelegableAuthInfoRepository
+import models.SteamProfile
 import models.daos._
-import models.services.{ UserService, UserServiceImpl }
+import models.services.{ CustomSteamProvider, SteamUserMicroServiceImpl, UserMicroService, UserService }
 import net.ceedubs.ficus.Ficus._
 import net.ceedubs.ficus.readers.ArbitraryTypeReader._
 import net.codingwell.scalaguice.ScalaModule
 import play.api.Configuration
 import play.api.libs.concurrent.Execution.Implicits._
+import play.api.libs.json.Json
 import play.api.libs.openid.OpenIdClient
 import play.api.libs.ws.WSClient
+import play.modules.reactivemongo.ReactiveMongoApi
 import utils.auth.{ CustomSecuredErrorHandler, CustomUnsecuredErrorHandler, DefaultEnv }
 
 /**
@@ -46,7 +49,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     bind[Silhouette[DefaultEnv]].to[SilhouetteProvider[DefaultEnv]]
     bind[UnsecuredErrorHandler].to[CustomUnsecuredErrorHandler]
     bind[SecuredErrorHandler].to[CustomSecuredErrorHandler]
-    bind[UserService].to[UserServiceImpl]
+    bind[UserMicroService[SteamProfile]].to[SteamUserMicroServiceImpl]
     bind[UserDAO].to[UserDAOImpl]
     bind[CacheLayer].to[PlayCacheLayer]
     bind[IDGenerator].toInstance(new SecureRandomIDGenerator())
@@ -82,7 +85,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
   @Provides
   def provideEnvironment(
     userService: UserService,
-    authenticatorService: AuthenticatorService[CookieAuthenticator],
+    authenticatorService: AuthenticatorService[SessionAuthenticator],
     eventBus: EventBus): Environment[DefaultEnv] = {
 
     Environment[DefaultEnv](
@@ -100,7 +103,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
    */
   @Provides
   def provideSocialProviderRegistry(
-    steamProvider: SteamProvider): SocialProviderRegistry = {
+    steamProvider: CustomSteamProvider): SocialProviderRegistry = {
     SocialProviderRegistry(Seq(
       steamProvider
     ))
@@ -214,6 +217,32 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     val encoder = new CrypterAuthenticatorEncoder(crypter)
 
     new CookieAuthenticatorService(config, None, cookieSigner, encoder, fingerprintGenerator, idGenerator, clock)
+  }
+
+  /**
+   * Provides the authenticator service.
+   *
+   * @param cookieSigner The cookie signer implementation.
+   * @param crypter The crypter implementation.
+   * @param fingerprintGenerator The fingerprint generator implementation.
+   * @param idGenerator The ID generator implementation.
+   * @param configuration The Play configuration.
+   * @param clock The clock instance.
+   * @return The authenticator service.
+   */
+  @Provides
+  def provideAuthenticatorService2(
+    @Named("authenticator-cookie-signer") cookieSigner: CookieSigner,
+    @Named("authenticator-crypter") crypter: Crypter,
+    fingerprintGenerator: FingerprintGenerator,
+    idGenerator: IDGenerator,
+    configuration: Configuration,
+    clock: Clock): AuthenticatorService[SessionAuthenticator] = {
+
+    val config = configuration.underlying.as[SessionAuthenticatorSettings]("silhouette.authenticator")
+    val encoder = new CrypterAuthenticatorEncoder(crypter)
+
+    new SessionAuthenticatorService(config, fingerprintGenerator, encoder, clock)
   }
 
   /**
@@ -410,14 +439,28 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     new YahooProvider(httpLayer, new PlayOpenIDService(client, settings), settings)
   }
 
-  /*@Provides
+  @Provides
   def provideSteamProvider(
     cacheLayer: CacheLayer,
     httpLayer: HTTPLayer,
     client: OpenIdClient,
-    configuration: Configuration): SteamProvider = {
+    configuration: Configuration,
+    steamUserDAO: SteamUserDAO): CustomSteamProvider = {
 
     val settings = configuration.underlying.as[OpenIDSettings]("silhouette.steam")
-    new SteamProvider(httpLayer, new PlayOpenIDService(client, settings), settings)
+    new CustomSteamProvider(httpLayer, new PlayOpenIDService(client, settings), settings, steamUserDAO)
+  }
+
+  /**
+   * Provides the implementation of the delegable OAuth1 auth info DAO.
+   *
+   * @param reactiveMongoApi The ReactiveMongo API.
+   * @param config The Play configuration.
+   * @return The implementation of the delegable OAuth1 auth info DAO.
+   */
+  /*@Provides
+  def provideOAuth1InfoDAO(reactiveMongoApi: ReactiveMongoApi, config: Configuration): DelegableAuthInfoDAO[OpenIDInfo] = {
+    implicit lazy val format = Json.format[OpenIDInfo]
+    new MongoAuthInfoDAO[OpenIDInfo](reactiveMongoApi, config)
   }*/
 }

@@ -6,7 +6,7 @@ import javax.inject.Inject
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.sun.glass.ui.InvokeLaterDispatcher
 import models.daos.SteamUserDAO.SteamId
-import models.{ ServiceProfile, User }
+import models.{ ServiceProfile, SteamProfile, User }
 
 import scala.concurrent.Future
 import play.api.libs.json._
@@ -16,7 +16,7 @@ import reactivemongo.play.json._
 import reactivemongo.play.json.collection._
 import play.modules.reactivemongo._
 import reactivemongo.api.collections.bson.BSONCollection
-import reactivemongo.api.commands.WriteError
+import reactivemongo.api.commands.{ Upserted, WriteError }
 import reactivemongo.bson._
 
 import scala.collection.generic.CanBuildFrom
@@ -27,19 +27,11 @@ import scala.util.parsing.json.{ JSONArray, JSONObject }
 /**
  * Created by henrik on 2017-03-27.
  */
-class ServiceProfileDAO @Inject() (val reactiveMongoApi: ReactiveMongoApi)(implicit exec: ExecutionContext) extends MongoController with ReactiveMongoComponents {
-  implicit def profileReader: reactivemongo.bson.BSONDocumentReader[ServiceProfile] = ServiceProfile.Reader
-  implicit def profileWriter: reactivemongo.bson.BSONDocumentWriter[ServiceProfile] = ServiceProfile.Writer
+class SteamProfileDAO @Inject() (val reactiveMongoApi: ReactiveMongoApi)(implicit exec: ExecutionContext) extends MongoController with ReactiveMongoComponents {
+  implicit def profileReader: reactivemongo.bson.BSONDocumentReader[SteamProfile] = SteamProfile.Reader
+  implicit def profileWriter: reactivemongo.bson.BSONDocumentWriter[SteamProfile] = SteamProfile.Writer
 
   def profilesFuture: Future[BSONCollection] = database.map(_.collection[BSONCollection]("profiles"))
-
-  /**
-   * Finds a user by its login info.
-   *
-   * @param loginInfo The login info of the user to find.
-   * @return The found user or None if no user for the given login info could be found.
-   */
-  def find(loginInfo: LoginInfo): Future[Option[User]] = ???
 
   /**
    * Finds a user by its user ID.
@@ -47,23 +39,23 @@ class ServiceProfileDAO @Inject() (val reactiveMongoApi: ReactiveMongoApi)(impli
    * @param userID The ID of the user to find.
    * @return The found user or None if no user for the given ID could be found.
    */
-  def find(userID: SteamId): Future[Option[ServiceProfile]] = {
-    val futureUsersList: Future[Option[ServiceProfile]] = profilesFuture.flatMap {
+  def find(userID: SteamId): Future[Option[SteamProfile]] = {
+    val futureUsersList: Future[Option[SteamProfile]] = profilesFuture.flatMap {
       // find all cities with name `name`
       _.find(Json.obj("id" -> userID))
         // perform the query and get a cursor of JsObject
-        .cursor[ServiceProfile](ReadPreference.primary).headOption
+        .cursor[SteamProfile](ReadPreference.primary).headOption
       // Coollect the results as a list
       //.collect[Option](1, Cursor.ContOnError[Option[ServiceProfile]] { (o: Option[ServiceProfile], t: Throwable) => println(t.getMessage) })
     }
     futureUsersList
   }
 
-  def bulkFind(users: List[SteamId]): Future[List[ServiceProfile]] = {
+  def bulkFind(users: List[SteamId]): Future[List[SteamProfile]] = {
     profilesFuture.flatMap { collection =>
       collection.find(BSONDocument("id" -> BSONDocument("$in" -> users)))
-        .cursor[ServiceProfile](ReadPreference.primary)
-        .collect[List](users.size, Cursor.FailOnError[List[ServiceProfile]]())
+        .cursor[SteamProfile](ReadPreference.primary)
+        .collect[List](users.size, Cursor.FailOnError[List[SteamProfile]]())
     }
   }
 
@@ -85,15 +77,14 @@ class ServiceProfileDAO @Inject() (val reactiveMongoApi: ReactiveMongoApi)(impli
    * @param profile The user to save.
    * @return The saved user.
    */
-  def save(profile: ServiceProfile): Future[Seq[WriteError]] = {
+  def save(profile: SteamProfile): Future[SteamProfile] = {
     println(s"saving $profile")
-    profilesFuture.flatMap(_.update[BSONDocument, ServiceProfile](BSONDocument("id" -> profile.id), profile, upsert = true)).map(_.writeErrors)
-  }
-
-  def registerUser(profile: ServiceProfile): Future[Seq[WriteError]] = {
-    println(s"adding user $profile")
-    profilesFuture.flatMap(_.update[BSONDocument, BSONDocument](BSONDocument("id" -> profile.id), BSONDocument("$set" -> profile), upsert = true))
-    profilesFuture.flatMap(_.update[BSONDocument, BSONDocument](BSONDocument("id" -> profile.id), BSONDocument("$set" -> BSONDocument("isRegistered" -> true)))).map(_.writeErrors)
+    val writeFuture = if (profile.isRegistered) {
+      profilesFuture.flatMap(_.update[BSONDocument, BSONDocument](BSONDocument("id" -> profile.id), BSONDocument("$set" -> BSONDocument(BSONDocument(profileWriter.write(profile)), BSONDocument("isRegistered" -> true))), upsert = true))
+    } else {
+      profilesFuture.flatMap(_.update[BSONDocument, BSONDocument](BSONDocument("id" -> profile.id), BSONDocument("$setOnInsert" -> BSONDocument("isRegistered" -> profile.isRegistered), "$set" -> profile), upsert = true))
+    }
+    writeFuture.map(_ => profile)
   }
 
 }

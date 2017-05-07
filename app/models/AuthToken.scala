@@ -2,6 +2,8 @@ package models
 
 import java.util.UUID
 
+import com.mohiva.play.silhouette.api.LoginInfo
+import models.ServiceProfile.ServiceUserId
 import org.joda.time.DateTime
 
 /**
@@ -13,5 +15,5 @@ import org.joda.time.DateTime
  */
 case class AuthToken(
   id: UUID,
-  userID: UUID,
+  userID: LoginInfo,
   expiry: DateTime)

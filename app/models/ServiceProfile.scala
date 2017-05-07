@@ -1,13 +1,16 @@
 package models
 
+import com.mohiva.play.silhouette.api.Identity
+import com.mohiva.play.silhouette.impl.providers.SocialProfile
 import reactivemongo.bson.{ BSONDocument, BSONDocumentReader, BSONDocumentWriter, BSONNumberLike }
 
 /**
  * Created by henrik on 2017-02-23.
  */
-trait ServiceProfile {
+trait ServiceProfile extends Identity with SocialProfile {
+  type Self <: ServiceProfile
   import models.ServiceProfile._
-  def id: serviceUserId
+  def id: ServiceUserId
   def service: String
   def visible: Boolean
   def displayName: String
@@ -15,13 +18,20 @@ trait ServiceProfile {
   def profileState: ProfileState
   def isInGame: Boolean
   def currentlyPlaying: Game
+  def isRegistered: Boolean
+  def register: Self
+
+  override def equals(obj: scala.Any): Boolean = obj match {
+    case s: ServiceProfile => { println("equals"); s.id == id && s.service == service }
+    case _ => false
+  }
 }
 
 object ServiceProfile {
   import Game.ordering
   implicit def ordering: Ordering[ServiceProfile] = Ordering.by { p: ServiceProfile => { (p.visible, p.currentlyPlaying, p.profileState, p.displayName) } }
   implicit def ordering2: Ordering[ProfileState] = Ordering.by(s => s.priority)
-  type serviceUserId = String
+  type ServiceUserId = String
   sealed trait ProfileState {
     def priority: Int
   }
@@ -47,30 +57,5 @@ object ServiceProfile {
     case Snooze => 4
     case LookingToTrade => 5
     case LookingToPlay => 6
-  }
-
-  implicit object Writer extends BSONDocumentWriter[ServiceProfile] {
-    def write(profile: ServiceProfile): BSONDocument = BSONDocument(
-      "id" -> profile.id,
-      "service" -> profile.service,
-      "visible" -> profile.visible,
-      "displayName" -> profile.displayName,
-      "avatarUrl" -> profile.avatarUrl,
-      "profileState" -> profile.profileState,
-      "isInGame" -> profile.isInGame,
-      "currentlyPlaying" -> profile.currentlyPlaying)
-  }
-
-  implicit object Reader extends BSONDocumentReader[ServiceProfile] {
-    def read(doc: BSONDocument): ServiceProfile = {
-      SteamProfileImpl(
-        doc.getAs[String]("id").get,
-        doc.getAs[Boolean]("visible").get,
-        doc.getAs[String]("displayName").get,
-        doc.getAs[String]("avatarUrl").get,
-        doc.getAs[ProfileState]("profileState").get,
-        doc.getAs[Game]("currentlyPlaying").get
-      )
-    }
   }
 }

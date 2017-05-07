@@ -4,15 +4,17 @@ import java.util.UUID
 import javax.inject.{ Inject, Named }
 
 import akka.actor.ActorRef
-import com.mohiva.play.silhouette.api.Silhouette
+import com.mohiva.play.silhouette.api.exceptions.ProviderException
+import com.mohiva.play.silhouette.api.{ LoginEvent, Silhouette }
+import com.mohiva.play.silhouette.impl.providers.{ SocialProvider, SocialProviderRegistry }
 import jobs.SteamInfoUpdater
 import jobs.SteamInfoUpdater.InitiateReload
 import models.Game.GameId
 import models.{ Game, ServiceProfile }
-import models.daos.{ GameDAO, ServiceProfileDAO, SteamUserDAO }
+import models.daos.{ GameDAO, SteamProfileDAO, SteamUserDAO }
 import models.daos.SteamUserDAO.SteamId
-import models.services.{ ProfileGraphService, UserService }
-import play.api.i18n.{ I18nSupport, MessagesApi }
+import models.services.{ ProfileGraphService, UserMicroService }
+import play.api.i18n.{ I18nSupport, Messages, MessagesApi }
 import play.api.mvc.{ Action, Controller }
 import reactivemongo.api.commands.WriteError
 import utils.auth.DefaultEnv
@@ -26,7 +28,7 @@ import scala.util.Try
 /**
  * Created by henrik on 2017-03-29.
  */
-class ProfileInfoController @Inject() (steamUserDAO: SteamUserDAO, profileDAO: ServiceProfileDAO, neo: ProfileGraphService, gameDAO: GameDAO, @Named("updater") steamInfoUpdater: ActorRef, silhouette: Silhouette[DefaultEnv], val messagesApi: MessagesApi, implicit val webJarAssets: WebJarAssets) extends Controller with I18nSupport {
+class ProfileInfoController @Inject() (socialProviderRegistry: SocialProviderRegistry, steamUserDAO: SteamUserDAO, profileDAO: SteamProfileDAO, neo: ProfileGraphService, gameDAO: GameDAO, @Named("updater") steamInfoUpdater: ActorRef, silhouette: Silhouette[DefaultEnv], val messagesApi: MessagesApi, implicit val webJarAssets: WebJarAssets) extends Controller with I18nSupport {
   //val userList: List[SteamId] = List("76561198030588344", "76561198013223031", "76561197998468755", "76561198200246905", "76561198050782985", "76561198098609179", "76561197996581718") //read from db or similar in future
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -39,7 +41,7 @@ class ProfileInfoController @Inject() (steamUserDAO: SteamUserDAO, profileDAO: S
     val profile = Future {
       steamUserDAO.processSummaries(steamUserDAO.getUserSummaries(List(id)))
     }
-    profile.flatMap(ps => profileDAO.registerUser(ps.head).map { l => Ok(l.foldLeft("")((t: String, s: WriteError) => s"$t ${s.toString}")) })
+    profile.flatMap(ps => profileDAO.save(ps.head.register).map { l => Ok(l.displayName) })
   }
 
   def readProfile(id: String) = Action.async { implicit request =>
@@ -58,7 +60,11 @@ class ProfileInfoController @Inject() (steamUserDAO: SteamUserDAO, profileDAO: S
       fs <- friends
       gs <- games
       profileOption <- profileDAO.find(id)
-    } yield profileOption.map { profile => Ok(views.html profilePage (profile, fs, gs)) }.get
+    } yield profileOption.map { profile => Ok(views.html.profilePage(profile, fs, gs)) }.get
     //OrElse(NotFound(views.html.errors.notFoundPage()))
+  }
+
+  def readProfileAuto() = silhouette.SecuredAction { implicit request =>
+    Redirect(routes.ProfileInfoController.readProfile(request.identity.id))
   }
 }

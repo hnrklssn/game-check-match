@@ -10,7 +10,7 @@ import com.mohiva.play.silhouette.api.util.{ Clock, Credentials }
 import com.mohiva.play.silhouette.impl.exceptions.IdentityNotFoundException
 import com.mohiva.play.silhouette.impl.providers._
 import forms.SignInForm
-import models.services.UserService
+import models.services.{ UserMicroService, UserService }
 import net.ceedubs.ficus.Ficus._
 import play.api.Configuration
 import play.api.i18n.{ I18nSupport, Messages, MessagesApi }
@@ -65,12 +65,13 @@ class SignInController @Inject() (
     SignInForm.form.bindFromRequest.fold(
       form => Future.successful(BadRequest(views.html.signIn(form, socialProviderRegistry))),
       data => {
+        println("SIGNIN")
         val credentials = Credentials(data.email, data.password)
         credentialsProvider.authenticate(credentials).flatMap { loginInfo =>
           val result = Redirect(routes.ApplicationController.index())
           userService.retrieve(loginInfo).flatMap {
-            case Some(user) if !user.activated =>
-              Future.successful(Ok(views.html.activateAccount(data.email)))
+            // case Some(user) if !user.isRegistered =>
+            // Future.successful(Ok(views.html.activateAccount(data.email)))
             case Some(user) =>
               val c = configuration.underlying
               silhouette.env.authenticatorService.create(loginInfo).map {
@@ -82,6 +83,7 @@ class SignInController @Inject() (
                   )
                 case authenticator => authenticator
               }.flatMap { authenticator =>
+                println("LOGIN !!")
                 silhouette.env.eventBus.publish(LoginEvent(user, request))
                 silhouette.env.authenticatorService.init(authenticator).flatMap { v =>
                   silhouette.env.authenticatorService.embed(v, result)

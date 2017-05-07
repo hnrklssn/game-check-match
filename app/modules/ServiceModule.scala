@@ -15,7 +15,7 @@ import models.daos._
 import models._
 import models.daos.ServiceUserDAO.ServiceProfileSource
 import models.daos.SteamUserDAO.SteamId
-import models.services.ProfileGraphService
+import models.services.{ ProfileGraphService, SteamUserMicroServiceImpl, UserMicroServiceRegistry }
 import net.codingwell.scalaguice.ScalaModule
 import play.api.Configuration
 import play.api.libs.openid.OpenIdClient
@@ -50,20 +50,12 @@ class ServiceModule extends AbstractModule with ScalaModule with AkkaGuiceSuppor
     steamUserDAO.userSummaries(ids)
 
   @Provides
-  def provideSteamProvider(
-    cacheLayer: CacheLayer,
-    httpLayer: HTTPLayer,
-    client: OpenIdClient,
-    configuration: Configuration): SteamProvider = {
-
-    val settings = configuration.underlying.as[OpenIDSettings]("silhouette.steam")
-    new SteamProvider(httpLayer, new PlayOpenIDService(client, settings), settings)
-  }
-
-  @Provides
   def steamIds: List[SteamId] = List("76561198030588344", "76561198013223031", "76561197998468755", "76561198200246905", "76561198050782985", "76561198098609179", "76561197996581718") //read from db or similar in future
 
   @Provides
   def neoDriver: Driver = GraphDatabase.driver("bolt://localhost:7687", AuthTokens.basic("neo4j", "test"))
+
+  @Provides
+  def microUserServices(@Inject steamUserMicroServiceImpl: SteamUserMicroServiceImpl): UserMicroServiceRegistry = UserMicroServiceRegistry(Seq(steamUserMicroServiceImpl))
 }
 

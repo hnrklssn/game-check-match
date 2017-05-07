@@ -1,4 +1,4 @@
-@(user: models.User)(implicit request: RequestHeader, messages: Messages, webJarAssets: WebJarAssets)
+@(user: models.ServiceProfile)(implicit request: RequestHeader, messages: Messages, webJarAssets: WebJarAssets)
 
 @main(Messages("home.title"), Some(user)) {
     <div class="user col-md-6 col-md-offset-3">
@@ -6,14 +6,14 @@
             <hr class="col-md-12" />
             <h4 class="col-md-8">@Messages("welcome.signed.in")</h4>
             <div class="col-md-4 text-right">
-                <img src="@user.avatarURL.getOrElse(routes.Assets.at("images/silhouette.png"))" height="40px" />
+                <img src="@user.avatarUrl" height="40px" />
             </div>
             <hr class="col-md-12" />
         </div>
         <div class="row data">
             <div class="col-md-12">
                 <div class="row">
-                    <p class="col-md-6"><strong>@Messages("first.name"):</strong></p><p class="col-md-6">@user.name.getOrElse("None")</p>
+                    <p class="col-md-6"><strong>@Messages("first.name"):</strong></p><p class="col-md-6">@user.displayName</p>
                 </div>
             </div>
         </div>

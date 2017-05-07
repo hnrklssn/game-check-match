@@ -9,7 +9,7 @@ import akka.stream.scaladsl.{ Sink, Source }
 import com.mohiva.play.silhouette.api.{ LogoutEvent, Silhouette }
 import com.mohiva.play.silhouette.impl.providers.{ SocialProvider, SocialProviderRegistry }
 import models.ServiceProfile.{ Offline, Online }
-import models.daos.ServiceProfileDAO
+import models.daos.SteamProfileDAO
 import models.{ ServiceProfile, SteamProfileImpl }
 import models.daos.ServiceUserDAO.ServiceProfileSource
 import play.api.i18n.{ I18nSupport, MessagesApi }
@@ -23,7 +23,7 @@ import scala.util.Success
 /**
  * Created by henrik on 2017-02-24.
  */
-class ProfileListController @Inject() (profileDAO: ServiceProfileDAO, silhouette: Silhouette[DefaultEnv], val messagesApi: MessagesApi, implicit val webJarAssets: WebJarAssets) extends Controller with I18nSupport {
+class ProfileListController @Inject() (profileDAO: SteamProfileDAO, silhouette: Silhouette[DefaultEnv], val messagesApi: MessagesApi, implicit val webJarAssets: WebJarAssets) extends Controller with I18nSupport {
   import controllers.ProfileListController._
   //import scala.concurrent.ExecutionContext.Implicits.global
   import play.api.libs.concurrent.Execution.Implicits.defaultContext

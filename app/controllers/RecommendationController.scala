@@ -7,11 +7,10 @@ import com.mohiva.play.silhouette.api.Silhouette
 import models.Game.GameId
 import models.{ Game, ServiceProfile }
 import models.daos.SteamUserDAO.SteamId
-import models.daos.{ GameDAO, ServiceProfileDAO, SteamUserDAO }
+import models.daos.{ GameDAO, SteamProfileDAO, SteamUserDAO }
 import models.services.ProfileGraphService
 import play.api.i18n.{ I18nSupport, MessagesApi }
 import play.api.mvc.{ Action, Controller }
-import play.twirl.api.Html
 import utils.auth.DefaultEnv
 import views.html.gamePage
 import views.html.recommendations.{ friendsWithGameRec, similarPeopleWithGameRec }
@@ -22,7 +21,7 @@ import scala.concurrent.Future
 /**
  * Created by Henrik on 2017-04-14.
  */
-class RecommendationController @Inject() (steamUserDAO: SteamUserDAO, profileDAO: ServiceProfileDAO, neo: ProfileGraphService, gameDAO: GameDAO, @Named("updater") steamInfoUpdater: ActorRef, silhouette: Silhouette[DefaultEnv], val messagesApi: MessagesApi, implicit val webJarAssets: WebJarAssets) extends Controller with I18nSupport {
+class RecommendationController @Inject() (steamUserDAO: SteamUserDAO, profileDAO: SteamProfileDAO, neo: ProfileGraphService, gameDAO: GameDAO, @Named("updater") steamInfoUpdater: ActorRef, silhouette: Silhouette[DefaultEnv], val messagesApi: MessagesApi, implicit val webJarAssets: WebJarAssets) extends Controller with I18nSupport {
   import scala.concurrent.ExecutionContext.Implicits.global
   def recommendations(id: SteamId) = Action.async {
     val recent = neo.recentMutualPlayTime(id).flatMap { s: Seq[(SteamId, GameId)] =>

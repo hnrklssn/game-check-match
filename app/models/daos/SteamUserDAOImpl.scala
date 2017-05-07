@@ -18,6 +18,7 @@ import akka.stream.{ OverflowStrategy, SourceShape }
 import com.lukaspradel.steamapi.data.json.friendslist.GetFriendList
 import com.lukaspradel.steamapi.data.json.ownedgames.GetOwnedGames
 import com.lukaspradel.steamapi.data.json.playersummaries.GetPlayerSummaries
+import com.mohiva.play.silhouette.api.LoginInfo
 import models.Game.GameId
 import utils.TimestampedFuture
 

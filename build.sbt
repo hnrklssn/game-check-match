@@ -2,9 +2,9 @@ import com.typesafe.sbt.SbtScalariform._
 
 import scalariform.formatter.preferences._
 
-name := """play-silhouette-seed"""
+name := """game-check-match"""
 
-version := "4.0.0"
+version := "0.1.0"
 
 scalaVersion := "2.11.8"
 
@@ -15,6 +15,8 @@ resolvers ++= Seq(
   "anormcypher" at "http://repo.anormcypher.org/",
   "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/"
 )
+
+
 
 libraryDependencies ++= Seq(
   "com.mohiva" %% "play-silhouette" % "4.0.0",
@@ -36,13 +38,14 @@ libraryDependencies ++= Seq(
   "org.neo4j" % "neo4j-ogm" % "2.1.1",
   "org.neo4j.driver" % "neo4j-java-driver" % "1.1.2",
   "org.reactivemongo" %% "play2-reactivemongo" % "0.12.1",
+  "com.mohiva" %% "play-silhouette-persistence-reactivemongo" % "4.0.1",
   specs2 % Test,
   cache,
   filters
 )
 
 //skip downloading dependencies on every compile
-offline := true
+offline := false
 updateOptions := updateOptions.value.withCachedResolution(true)
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
@@ -75,7 +78,7 @@ ScalariformKeys.preferences := ScalariformKeys.preferences.value
   .setPreference(DoubleIndentClassDeclaration, false)
   .setPreference(DanglingCloseParenthesis, Preserve)
 
-fork in run := true
+fork in run := false
 
 initialCommands in console :=
   """
@@ -134,6 +137,12 @@ initialCommands in console :=
     |  }
     |def steamIds: List[SteamId] = List("76561198030588344", "76561198013223031", "76561197998468755", "76561198200246905", "76561198050782985", "76561198098609179", "76561197996581718")
   """.stripMargin
+
+fork in run := true
+
+fork in run := true
+
+fork in run := true
 
 fork in run := true
 

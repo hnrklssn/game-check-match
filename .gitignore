@@ -19,7 +19,7 @@ bin/
 /db
 .eclipse
 lib
-modules
+/modules
 test-result
 server.pid
 *.eml

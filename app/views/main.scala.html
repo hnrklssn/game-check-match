@@ -38,7 +38,12 @@
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         @user.map { u =>
-                            <li><a href="@routes.ApplicationController.index">@u.displayName</a></li>
+                            <li><a class="testlink" href="@routes.ApplicationController.index">
+                                <img class="avatar avatar-mini @u.profileState" src="@u.avatarUrl">
+                            </a></li>
+                            <li><a href="@routes.ApplicationController.index">
+                                @u.displayName
+                            </a></li>
                             <li><a href="@routes.ApplicationController.signOut">@Messages("sign.out")</a></li>
                         }.getOrElse {
                             <li><a href="@routes.SignInController.view">@Messages("sign.in")</a></li>

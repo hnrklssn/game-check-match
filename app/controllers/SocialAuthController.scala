@@ -57,7 +57,7 @@ class SocialAuthController @Inject() (
             println(s"RIGHHT $authInfo")
             println(result.withCookies(new Cookie("test", "test")).header)
             silhouette.env.eventBus.publish(LoginEvent(user, request))
-            result.withCookies(new Cookie("test", "test"))
+            result.flashing("success" -> s"Welcome, ${user.displayName}!")
           }
         }
       case _ => Future.failed(new ProviderException(s"Cannot authenticate with unexpected social provider $provider"))

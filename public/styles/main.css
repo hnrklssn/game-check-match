@@ -125,6 +125,18 @@ meter::-webkit-meter-bar {
     margin: 3px 0px 3px 15px;
     float: left;
 }
+.avatar.avatar-mini {
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 8px;
+    margin: 3px 0px 3px 0px;
+    float: left;
+    height: 30px;
+}
+
+.testlink {
+    display: flex;
+}
 .avatar.Online {
     border-color: lawngreen;
 }

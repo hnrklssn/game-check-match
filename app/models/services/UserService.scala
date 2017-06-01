@@ -17,7 +17,7 @@ class UserService @Inject() (userMicroServiceRegistry: UserMicroServiceRegistry)
   def save[T <: ServiceProfile](profile: T): Future[T] = userMicroServiceRegistry.getUserMicroService[T](profile.service).map(_.save(profile)).getOrElse(Future.failed(new NoSuchElementException("None.get")))
 }
 
-case class UserMicroServiceRegistry(services: Seq[UserMicroService[_]]) {
+case class UserMicroServiceRegistry @Inject() (services: Seq[UserMicroService[_]]) {
   def getUserMicroService[T <: ServiceProfile](tag: String): Option[UserMicroService[T]] = {
     println(s"$tag UserService.scala")
     services.foreach(s => println(s.tag))

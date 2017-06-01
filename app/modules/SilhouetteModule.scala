@@ -41,6 +41,25 @@ import utils.auth.{ CustomSecuredErrorHandler, CustomUnsecuredErrorHandler, Defa
  * The Guice module which wires all Silhouette dependencies.
  */
 class SilhouetteModule extends AbstractModule with ScalaModule {
+//  println(
+//    """
+//      |sdfg
+//      |dsfg
+//      |asdfsdf!!!!!!!!!!!
+//      |asg
+//      |dfg
+//      |dfg
+//      |reg
+//      |asdgf
+//      |as
+//      |dfgd
+//      |fg
+//      |sdfg
+//      |dsf
+//      |g
+//      |dfg
+//      |sdfddfgdfgdfgdfg
+//    """.stripMargin)
 
   /**
    * Configures the module.
@@ -450,17 +469,4 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     val settings = configuration.underlying.as[OpenIDSettings]("silhouette.steam")
     new CustomSteamProvider(httpLayer, new PlayOpenIDService(client, settings), settings, steamUserDAO)
   }
-
-  /**
-   * Provides the implementation of the delegable OAuth1 auth info DAO.
-   *
-   * @param reactiveMongoApi The ReactiveMongo API.
-   * @param config The Play configuration.
-   * @return The implementation of the delegable OAuth1 auth info DAO.
-   */
-  /*@Provides
-  def provideOAuth1InfoDAO(reactiveMongoApi: ReactiveMongoApi, config: Configuration): DelegableAuthInfoDAO[OpenIDInfo] = {
-    implicit lazy val format = Json.format[OpenIDInfo]
-    new MongoAuthInfoDAO[OpenIDInfo](reactiveMongoApi, config)
-  }*/
 }

@@ -15,7 +15,7 @@ import models.daos._
 import models._
 import models.daos.ServiceUserDAO.ServiceProfileSource
 import models.daos.SteamUserDAO.SteamId
-import models.services.{ ProfileGraphService, SteamUserMicroServiceImpl, UserMicroServiceRegistry }
+import models.services.{ ProfileGraphService, SteamUserMicroServiceImpl, UserMicroService, UserMicroServiceRegistry }
 import net.codingwell.scalaguice.ScalaModule
 import play.api.Configuration
 import play.api.libs.openid.OpenIdClient
@@ -61,6 +61,9 @@ class ServiceModule extends AbstractModule with ScalaModule with AkkaGuiceSuppor
   }
 
   @Provides
-  def microUserServices(@Inject steamUserMicroServiceImpl: SteamUserMicroServiceImpl): UserMicroServiceRegistry = UserMicroServiceRegistry(Seq(steamUserMicroServiceImpl))
+  def microUserServices(@Inject steamUserMicroServiceImpl: UserMicroService[SteamProfile]): UserMicroServiceRegistry = UserMicroServiceRegistry(Seq(steamUserMicroServiceImpl))
+
+  //@Provides
+  //def microUserServices(@Inject steamUserMicroServiceImpl: UserMicroService[SteamProfile]): Seq[UserMicroService[_]] = Seq(steamUserMicroServiceImpl)
 }
 

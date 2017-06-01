@@ -53,7 +53,12 @@ class ServiceModule extends AbstractModule with ScalaModule with AkkaGuiceSuppor
   def steamIds: List[SteamId] = List("76561198030588344", "76561198013223031", "76561197998468755", "76561198200246905", "76561198050782985", "76561198098609179", "76561197996581718") //read from db or similar in future
 
   @Provides
-  def neoDriver: Driver = GraphDatabase.driver("bolt://localhost:7687", AuthTokens.basic("neo4j", "test"))
+  def neoDriver(configuration: Configuration): Driver = {
+    val url = configuration.underlying.as[String]("neo4j.url")
+    val username = configuration.underlying.as[String]("neo4j.username")
+    val password = configuration.underlying.as[String]("neo4j.password")
+    GraphDatabase.driver(url, AuthTokens.basic(username, password))
+  }
 
   @Provides
   def microUserServices(@Inject steamUserMicroServiceImpl: SteamUserMicroServiceImpl): UserMicroServiceRegistry = UserMicroServiceRegistry(Seq(steamUserMicroServiceImpl))

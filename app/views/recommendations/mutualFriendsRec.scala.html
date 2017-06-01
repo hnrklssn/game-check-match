@@ -1,0 +1,10 @@
+@(mutualFriends: Iterable[ServiceProfile], profileName: String)
+
+<div class="recommendation mutual-friends">
+    <h2>Friends who know @profileName (maybe get together for a session?):</h2>
+    <div>
+    @for(profile <- mutualFriends) {
+        @simpleMiniProfile(profile)
+    }
+    </div>
+</div>

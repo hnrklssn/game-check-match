@@ -24,4 +24,5 @@ trait ProfileGraphService {
   def popularAmongPeopleLikeYou(id: SteamId, amount: Int): Future[Seq[GameId]]
   def friendsWithGame(id: SteamId, game: GameId): Future[Seq[SteamId]]
   def filterHasGame(steamUsers: Seq[SteamId], gameId: GameId): Future[Seq[SteamId]]
+  def mutualFriends(users: Seq[SteamId]): Future[Seq[SteamId]]
 }

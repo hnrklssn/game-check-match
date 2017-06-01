@@ -302,10 +302,11 @@ return $friend"""
 
   override def filterHasGame(steamUsers: Seq[SteamId], gameId: GameId): Future[Seq[SteamId]] = {
     val profileId: String = "pid"
+    val filtered: String = "res"
     val listString = steamUsers.tail.foldLeft(steamUsers.head)((tail, head) => s""" "$head", $tail""")
     val query = s"""UNWIND([$listString]) AS $profileId
                     |MATCH (n :SteamProfile {id: $profileId})-[:OWNS]-(g :Game {id: "$gameId"})
-                    |RETURN $profileId """.stripMargin
+                    |RETURN n.id AS $filtered """.stripMargin
     Future {
       blocking {
         println(query)
@@ -313,7 +314,28 @@ return $friend"""
         val result = session.run(query).asScala
         session.close()
         result.map(res =>
-          res.get(profileId).asString()
+          res.get(filtered).asString()
+        ).toSeq
+      }
+    }
+  }
+
+  override def mutualFriends(users: Seq[SteamId]): Future[Seq[SteamId]] = {
+    val profileId: String = "pid"
+    val mutual: String = "res"
+    println(s"Neo4jDAOImpl.scala:326 $users")
+    val listString = users.tail.foldLeft(s"""MATCH (:SteamProfile {id: "${users.head}" })-[:FRIEND]-(f :SteamProfile)""")((tail, head) => s"""$tail WHERE (f)-[:FRIEND]-(:SteamProfile {id: "$head" })""")
+    println(s"Neo4jDAOImpl.scala:328 $listString")
+    val query = s"""$listString
+                   |RETURN f.id AS $mutual""".stripMargin
+    Future {
+      blocking {
+        println(query)
+        val session = graphDb.session()
+        val result = session.run(query).asScala
+        session.close()
+        result.map(res =>
+          res.get(mutual).asString()
         ).toSeq
       }
     }

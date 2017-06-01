@@ -5,12 +5,13 @@ import javax.inject.{ Inject, Named }
 import akka.actor.ActorRef
 import com.mohiva.play.silhouette.api.Silhouette
 import models.Game.GameId
-import models.{ Game, ServiceProfile }
+import models.{ FriendsWithGameRecommendation, Game, Recommendation, ServiceProfile }
 import models.daos.SteamUserDAO.SteamId
 import models.daos.{ GameDAO, SteamProfileDAO, SteamUserDAO }
 import models.services.ProfileGraphService
 import play.api.i18n.{ I18nSupport, MessagesApi }
 import play.api.mvc.{ Action, Controller }
+import play.twirl.api.Html
 import utils.auth.DefaultEnv
 import views.html.gamePage
 import views.html.recommendations.{ friendsWithGameRec, similarPeopleWithGameRec }
@@ -73,20 +74,23 @@ class RecommendationController @Inject() (steamUserDAO: SteamUserDAO, profileDAO
     } yield Ok(views.html.recommendations.allRecommendations(r, t1, t2))
   }
 
-  def recByGame(gameId: GameId) = Action.async {
-    val user = "76561198030588344"
+  def recByGame(gameId: GameId) = silhouette.SecuredAction.async { implicit request =>
+    val user = request.identity.id
     val gameFuture: Future[Option[Game]] = gameDAO.find(gameId)
-    val friendsWithGameFuture: Future[Seq[ServiceProfile]] = neo.friendsWithGame(user, gameId).flatMap { friends => profileDAO.bulkFind(friends.toList) }
     val similarInterestsFuture: Future[Seq[ServiceProfile]] = neo.peopleLikeYou(user, 20).flatMap(people => neo.filterHasGame(people, gameId)).flatMap { people => profileDAO.bulkFind(people.toList) }
     for {
       gameOption <- gameFuture
-      friends <- friendsWithGameFuture
+      friendsWithGameRec <- recommendFriendsWithGame(gameOption.get, user)
       similar <- similarInterestsFuture
-    } yield { println(similar); println(gameOption.get.toString); Ok(gamePage(gameOption.get, concatenateHtml(friendsWithGameRec(friends, gameOption.get.toString), similarPeopleWithGameRec(similar, gameOption.get.toString)))) }
+    } yield { println(similar); println(gameOption.get.toString); Ok(gamePage(gameOption.get, concatenateHtml(friendsWithGameRec, similarPeopleWithGameRec(similar, gameOption.get.toString)))) }
   }
   /*private def mutualRecentlyPlayed(id: SteamId) = {
     neo.
   }
   private def mutualTotalTimePlayed(id: SteamId)
 */
+  def recommendFriendsWithGame(game: Game, userId: SteamId): Future[Html] = {
+    val friendsWithGameFuture: Future[Seq[ServiceProfile]] = neo.friendsWithGame(userId, game.id).flatMap { friends => profileDAO.bulkFind(friends.toList) }
+    friendsWithGameFuture.map(friends => views.html.recommendations.friendsWithGameRec(friends, game.toString))
+  }
 }

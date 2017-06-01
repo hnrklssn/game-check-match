@@ -3,7 +3,7 @@
 <div class="game-mini">
     <img class="game-icon game-item" src="https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/@{game.id}/@{game.iconUrl}.jpg">
     <div class="game-text-container">
-        <div class="game-title game-item truncate">@game</div>
+        <div class="game-title game-item truncate"><a href="@routes.RecommendationController.recByGame(game.id)">@game</a></div>
         @extra
     </div>
 </div>

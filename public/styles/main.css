@@ -171,7 +171,7 @@ meter::-webkit-meter-bar {
     border-radius: 7px;
     margin: 10px;
     padding: 15px;
-    width: 355px;
+    width: 390px;
     background-color: lightgray;
     display: inline-block;
 }
@@ -196,7 +196,6 @@ meter::-webkit-meter-bar {
 
 .friends {
     float: left;
-    width: 100%;
 }
 
 .game-icon {
@@ -319,6 +318,26 @@ a:hover {
 .common-game {
     margin-top: 5px;
     margin-bottom: -10px;
+}
+
+.fa:before {
+
+}
+
+.fa-steam {
+    color: white;
+}
+
+.fa-square {
+    color: black;
+}
+
+.steam-link {
+    padding: 0 !important;
+    position: relative;
+    left: 0;
+    top: 13.5px;
+    bottom: 13.5px;
 }
 
 meter[value="0"]::-webkit-meter-optimum-value,

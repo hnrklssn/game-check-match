@@ -120,12 +120,12 @@ class SteamInfoUpdater @Inject() (neo: ProfileGraphService, steamApi: SteamUserD
   def userList: List[SteamId] = Await.result[List[String]](profileDAO.findAllUsers, 5.seconds)
   //val userList: List[SteamId] = List("76561198030588344", "76561198013223031", "76561197998468755", "76561198200246905", "76561198050782985", "76561198098609179", "76561197996581718") //read from db or similar in future
   //self ! InitiateReload(userList)
-  val cancellable =
-    context.system.scheduler.schedule(
-      0.milliseconds,
-      2.minutes,
-      self,
-      InitiateReload(userList))
+  //  val cancellable =
+  //    context.system.scheduler.schedule(
+  //      5.minutes,
+  //      20.minutes,
+  //      self,
+  //      InitiateReload(userList))
 
   val listener = context.system.actorOf(Props(new Actor {
     def receive = {

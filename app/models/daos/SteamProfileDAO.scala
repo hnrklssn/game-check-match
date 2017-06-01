@@ -6,7 +6,6 @@ import javax.inject.Inject
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.DateTime
 import com.mohiva.play.silhouette.api.LoginInfo
-import com.sun.glass.ui.InvokeLaterDispatcher
 import models.daos.SteamUserDAO.SteamId
 import models.{ ServiceProfile, SteamProfile, User }
 

@@ -115,6 +115,10 @@ class SteamInfoUpdater @Inject() (neo: ProfileGraphService, steamApi: SteamUserD
         }
       }
     }
+    case SignUpEvent(identity, request) =>
+      identity match {
+        case s: ServiceProfile => self ! InitiateReload(List(s.id))
+      }
   }
   def userList: List[SteamId] = Await.result[List[String]](profileDAO.findAllUsers, 5.seconds)
     //self ! InitiateReload(userList)
@@ -140,6 +144,8 @@ class SteamInfoUpdater @Inject() (neo: ProfileGraphService, steamApi: SteamUserD
   eventBus.subscribe(listener, classOf[SignUpEvent[ServiceProfile]])
   eventBus.subscribe(listener, classOf[NotAuthenticatedEvent])
   eventBus.subscribe(listener, classOf[AuthenticatedEvent[ServiceProfile]])
+
+  eventBus.subscribe(self, classOf[SignUpEvent[ServiceProfile]])
 }
 
 object SteamInfoUpdater {

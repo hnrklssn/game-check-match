@@ -47,6 +47,7 @@ class SocialAuthController @Inject() (
           case Left(result) => Future.successful(result)
           case Right(authInfo) => for {
             profile <- p.retrieveProfile(authInfo).map(_.register)
+            new_user <- userService.retrieve(profile.loginInfo).map(_.isEmpty)
             user <- userService.save(profile)
             authInfo <- authInfoRepository.save(profile.loginInfo, authInfo)
             authService <- Future(silhouette.env.authenticatorService)
@@ -56,6 +57,9 @@ class SocialAuthController @Inject() (
           } yield {
             println(s"RIGHHT $authInfo")
             println(result.withCookies(new Cookie("test", "test")).header)
+            if(new_user) {
+              silhouette.env.eventBus.publish(SignUpEvent(user, request))
+            }
             silhouette.env.eventBus.publish(LoginEvent(user, request))
             result.flashing("success" -> s"Welcome, ${user.displayName}!")
           }

@@ -28,10 +28,9 @@ import scala.concurrent.Future
 /**
  * Created by henrik on 2017-02-22.
  */
-class SteamUserDAOImpl @Inject() ( /*config: Configuration,*/ steamProfileFactory: SteamProfileFactory) extends SteamUserDAO {
+class SteamUserDAOImpl @Inject() ( config: Configuration, steamProfileFactory: SteamProfileFactory) extends SteamUserDAO {
   import SteamUserDAOImpl._
-  //private[this] lazy val key: String = config.getString("steam.key")
-  val key = "CA06C916B80AE819D4C61E1C3A548666"
+  private lazy val key: String = config.getString("steam.key")
   private lazy val client = new SteamWebApiClient.SteamWebApiClientBuilder(key).build()
 
   import scala.concurrent.ExecutionContext.Implicits.global

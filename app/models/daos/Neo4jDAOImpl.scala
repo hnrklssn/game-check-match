@@ -40,7 +40,6 @@ class Neo4jDAOImpl @Inject() (graphDb: Driver) extends ProfileGraphService {
     })
     Future {
       blocking {
-        if (user == "76561198030588344") { println("hejhejhej"); println(query) }
         val session = graphDb.session()
         val result = session.run(query)
         session.close()

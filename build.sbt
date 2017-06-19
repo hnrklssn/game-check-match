@@ -107,7 +107,6 @@ initialCommands in console :=
     |import daos._
     |import org.neo4j.driver.v1._
     |import org.neo4j.driver.v1.Values.parameters
-    |val key: String = "CA06C916B80AE819D4C61E1C3A548666"
     |val client = new SteamWebApiClient.SteamWebApiClientBuilder(key).build()
     |import scala.concurrent.ExecutionContext.Implicits.global
     |val steamProfileFactory = new models.SteamProfileFactoryImpl
@@ -135,7 +134,6 @@ initialCommands in console :=
     |def processFriends(friends: GetFriendList) = {
     |    friends.getFriendslist.getFriends.asScala.map { f => (f.getSteamid, f.getFriendSince) }
     |  }
-    |def steamIds: List[SteamId] = List("76561198030588344", "76561198013223031", "76561197998468755", "76561198200246905", "76561198050782985", "76561198098609179", "76561197996581718")
   """.stripMargin
 
 fork in run := true

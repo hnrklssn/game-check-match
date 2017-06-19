@@ -30,7 +30,6 @@ import scala.util.Try
  * Created by henrik on 2017-03-29.
  */
 class ProfileInfoController @Inject() (socialProviderRegistry: SocialProviderRegistry, steamUserDAO: SteamUserDAO, profileDAO: SteamProfileDAO, neo: ProfileGraphService, gameDAO: GameDAO, @Named("updater") steamInfoUpdater: ActorRef, silhouette: Silhouette[DefaultEnv], val messagesApi: MessagesApi, implicit val webJarAssets: WebJarAssets) extends Controller with I18nSupport {
-  //val userList: List[SteamId] = List("76561198030588344", "76561198013223031", "76561197998468755", "76561198200246905", "76561198050782985", "76561198098609179", "76561197996581718") //read from db or similar in future
   import scala.concurrent.ExecutionContext.Implicits.global
 
   val users = Await.result[mutable.Buffer[String]](profileDAO.findAllUsers.map(_.toBuffer), 5.seconds)

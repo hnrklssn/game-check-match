@@ -48,10 +48,7 @@ class ServiceModule extends AbstractModule with ScalaModule with AkkaGuiceSuppor
   @Provides
   def steamSummariesProvider(@Inject steamUserDAO: SteamUserDAO, @Inject ids: List[SteamId], @Inject steamProfileFactory: SteamProfileFactory) =
     steamUserDAO.userSummaries(ids)
-
-  @Provides
-  def steamIds: List[SteamId] = List("76561198030588344", "76561198013223031", "76561197998468755", "76561198200246905", "76561198050782985", "76561198098609179", "76561197996581718") //read from db or similar in future
-
+  
   @Provides
   def neoDriver(configuration: Configuration): Driver = {
     val url = configuration.underlying.as[String]("neo4j.url")

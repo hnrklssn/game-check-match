@@ -40,15 +40,15 @@ class ServiceModule extends AbstractModule with ScalaModule with AkkaGuiceSuppor
     bind[GameDAO].to[GameDAOImpl]
   }
 
-  @Provides
-  def allUserSummariesProvider(@Inject steamUserSummaries: Source[Seq[SteamProfile], NotUsed]): ServiceProfileSource = {
-    steamUserSummaries.buffer(1, OverflowStrategy.dropTail).take(1) //if several services in future, merge streams here
-  }
+//  @Provides
+//  def allUserSummariesProvider(@Inject steamUserSummaries: Source[Seq[SteamProfile], NotUsed]): ServiceProfileSource = {
+//    steamUserSummaries.buffer(1, OverflowStrategy.dropTail).take(1) //if several services in future, merge streams here
+//  }
 
-  @Provides
-  def steamSummariesProvider(@Inject steamUserDAO: SteamUserDAO, @Inject ids: List[SteamId], @Inject steamProfileFactory: SteamProfileFactory) =
-    steamUserDAO.userSummaries(ids)
-  
+//  @Provides
+//  def steamSummariesProvider(@Inject steamUserDAO: SteamUserDAO, @Inject ids: List[SteamId], @Inject steamProfileFactory: SteamProfileFactory) =
+//    steamUserDAO.userSummaries(ids)
+
   @Provides
   def neoDriver(configuration: Configuration): Driver = {
     val url = configuration.underlying.as[String]("neo4j.url")

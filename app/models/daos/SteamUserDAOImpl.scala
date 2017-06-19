@@ -35,26 +35,26 @@ class SteamUserDAOImpl @Inject() ( config: Configuration, steamProfileFactory: S
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  override def userSummaries(ids: List[SteamId]): Source[Seq[SteamProfile], NotUsed] = {
-    Source.fromGraph(GraphDSL.create() { implicit builder =>
-      import GraphDSL.Implicits._
-
-      val freshProfiles = ticker.mapAsync(5)(_ => TimestampedFuture[GetPlayerSummaries, List[SteamId]](ids) { l =>
-        getUserSummaries(l)
-      })
-        .map {
-          processSummaries(_)
-        }
-      val priorityMerge = builder.add(MergePreferred[Seq[SteamProfile]](1))
-      val profileCache = builder.add(Flow[Seq[SteamProfile]].buffer(1, OverflowStrategy.dropHead))
-      val broadcast = builder.add(Broadcast[Seq[SteamProfile]](2))
-      //keeps a copy in cache and loops it back around. fresh copies replace old ones
-      freshProfiles ~> priorityMerge.preferred
-      priorityMerge <~ profileCache <~ broadcast.out(0)
-      priorityMerge ~> broadcast
-      SourceShape(broadcast.out(1))
-    })
-  }
+//  override def userSummaries(ids: List[SteamId]): Source[Seq[SteamProfile], NotUsed] = {
+//    Source.fromGraph(GraphDSL.create() { implicit builder =>
+//      import GraphDSL.Implicits._
+//
+//      val freshProfiles = ticker.mapAsync(5)(_ => TimestampedFuture[GetPlayerSummaries, List[SteamId]](ids) { l =>
+//        getUserSummaries(l)
+//      })
+//        .map {
+//          processSummaries(_)
+//        }
+//      val priorityMerge = builder.add(MergePreferred[Seq[SteamProfile]](1))
+//      val profileCache = builder.add(Flow[Seq[SteamProfile]].buffer(1, OverflowStrategy.dropHead))
+//      val broadcast = builder.add(Broadcast[Seq[SteamProfile]](2))
+//      //keeps a copy in cache and loops it back around. fresh copies replace old ones
+//      freshProfiles ~> priorityMerge.preferred
+//      priorityMerge <~ profileCache <~ broadcast.out(0)
+//      priorityMerge ~> broadcast
+//      SourceShape(broadcast.out(1))
+//    })
+//  }
 
   def getUserSummaries(ids: List[SteamId]) = {
     val req = SteamWebApiRequestFactory.createGetPlayerSummariesRequest(ids.asJava)

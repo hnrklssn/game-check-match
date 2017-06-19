@@ -20,7 +20,7 @@ import scala.concurrent.Future
 trait SteamUserDAO {
   import models.daos.SteamUserDAO._
 
-  def userSummaries(ids: List[SteamId]): Source[Seq[SteamProfile], NotUsed]
+//  def userSummaries(ids: List[SteamId]): Source[Seq[SteamProfile], NotUsed]
   def getUserSummaries(ids: List[SteamId]): GetPlayerSummaries
   def processSummaries(summaries: GetPlayerSummaries): Seq[SteamProfile]
   //def bufferFetchProfiles(ids: Iterable[SteamId]): Future[Seq[SteamProfile]]

@@ -18,12 +18,13 @@ import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Await, Future, blocking}
 import scala.concurrent.duration._
+import akka.dispatch.RequiresMessageQueue
 
 /**
   * Created by henrik on 2017-03-08.
   */
 
-class SteamInfoUpdater @Inject()(neo: ProfileGraphService, steamApi: SteamUserDAO, profileDAO: SteamProfileDAO, gameDAO: GameDAO) extends Actor with akka.actor.ActorLogging {
+class SteamInfoUpdater @Inject()(neo: ProfileGraphService, steamApi: SteamUserDAO, profileDAO: SteamProfileDAO, gameDAO: GameDAO) extends Actor with akka.actor.ActorLogging with RequiresMessageQueue[SteamInfoUpdaterQueue] {
   override def receive: Receive = {
     case InitiateReload(users, prio) => {
       println(s"starting reload of users: $users")
@@ -232,7 +233,7 @@ object SteamInfoUpdater {
   }
 
   // This is the Mailbox implementation
-  class MyUnboundedMailbox extends MailboxType
+  class UniquePriorityMailbox extends MailboxType
     with ProducesMessageQueue[UniquePriorityMessageQueue] {
 
 

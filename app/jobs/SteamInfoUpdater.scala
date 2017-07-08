@@ -118,8 +118,10 @@ class SteamInfoUpdater @Inject() (neo: ProfileGraphService, steamApi: SteamUserD
       }
     }
     case SignUpEvent(identity, request) =>
+      println("signup!")
       identity match {
         case s: ServiceProfile =>
+          println("initiating reload!")
           self ! InitiateReload(List(s.id), Int.MaxValue)
           userList = s.id :: userList
       }
@@ -205,15 +207,23 @@ class UniquePriorityMessageQueue extends MessageQueue
   with MyPrioQueueSemantics {
 
   private final val queue = new UniquePriorityBlockingQueue[Envelope](500, Ordering.by(e => e.message match {
-    case m: InfoUpdaterMessage => m.priority
+    case m: InfoUpdaterMessage => { println(s"steaminfoupdater:210 $m"); m.priority }
     case _ => Int.MaxValue
   }))
 
   // these should be implemented; queue used as example
-  def enqueue(receiver: ActorRef, handle: Envelope): Unit =
-    queue.offer(handle)
+  def enqueue(receiver: ActorRef, handle: Envelope): Unit = {
+    queue.add(handle)
+    println(s"steaminfoupdater:217 $handle")
+    println(s"steaminfoupdater:218 ${queue.toArray.toList}")
+    println(s"steaminfoupdater:219 ${queue.size()}")
+  }
 
-  def dequeue(): Envelope = queue.poll()
+  def dequeue(): Envelope = {
+    println(s"steaminfoupdater:223 ${queue.size()}")
+    println(s"steaminfoupdater:224 ${queue.peek()}")
+    queue.poll()
+  }
 
   def numberOfMessages: Int = queue.size
 
@@ -227,12 +237,15 @@ class UniquePriorityMessageQueue extends MessageQueue
 }
 
 class UniquePriorityBlockingQueue[T](initialCapacity: Int, ordering: Ordering[T]) extends ForwardingQueue[T] {
-  override def delegate(): util.Queue[T] = new PriorityBlockingQueue[T](initialCapacity, ordering)
+  override val delegate: util.Queue[T] = new PriorityBlockingQueue[T](initialCapacity, ordering)
+  //override def delegate(): util.Queue[T] =
 
   override def add(element: T): Boolean = if (super.contains(element)) {
+    println(s"steaminfoupdater:243 $element")
     false
   } else {
-    super.add(element)
+    println(s"steaminfoupdater:246 $element")
+    delegate.add(element)
   }
 
   override def offer(o: T): Boolean = standardOffer(o)

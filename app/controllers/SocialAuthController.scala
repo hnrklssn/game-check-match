@@ -44,10 +44,10 @@ class SocialAuthController @Inject() (
     (socialProviderRegistry.get[SocialProvider](provider) match {
       case Some(p: SocialProvider with ServiceProfileBuilder) =>
         p.authenticate().flatMap {
-          case Left(result) => Future.successful(result)
+          case Left(result) => {println(s"socialAuthCont:47 $result");Future.successful(result)}
           case Right(authInfo) => for {
             profile <- p.retrieveProfile(authInfo).map(_.register)
-            new_user <- userService.retrieve(profile.loginInfo).map(_.isEmpty)
+            new_user <- userService.retrieve(profile.loginInfo).map{p => println(s"socialAuthCont:50 $p"); p}.map(_.isEmpty)
             user <- userService.save(profile)
             authInfo <- authInfoRepository.save(profile.loginInfo, authInfo)
             authService <- Future(silhouette.env.authenticatorService)
@@ -57,7 +57,7 @@ class SocialAuthController @Inject() (
           } yield {
             println(s"RIGHHT $authInfo")
             println(result.withCookies(new Cookie("test", "test")).header)
-            if(new_user) {
+            if (new_user) {
               silhouette.env.eventBus.publish(SignUpEvent(user, request))
             }
             silhouette.env.eventBus.publish(LoginEvent(user, request))

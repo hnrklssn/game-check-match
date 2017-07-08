@@ -69,7 +69,6 @@ class GameDAOImpl @Inject() (val reactiveMongoApi: ReactiveMongoApi)(implicit ex
    * @return Error codes.
    */
   override def upsert(game: Game): Future[Game] = {
-    println(s"saving game $game")
     gamesFuture.flatMap(_.update[BSONDocument, Game](BSONDocument("id" -> game.id), game, upsert = true)).map(_ => game)
   }
   private var promise: Option[Promise[Seq[Game]]] = None

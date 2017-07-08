@@ -74,6 +74,7 @@ class Neo4jDAOImpl @Inject() (graphDb: Driver) extends ProfileGraphService {
          |CREATE UNIQUE (p)-[r:FRIEND]-(p$pid)
          |SET r.friendsSince = "$i"} """.stripMargin
     })
+    println(s"neo4jdaoimpl:77 $query")
     Future {
       blocking {
         val session = graphDb.session()

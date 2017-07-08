@@ -5,26 +5,31 @@ import java.util.concurrent.PriorityBlockingQueue
 import javax.inject.Inject
 
 import akka.actor._
-import akka.http.scaladsl.model.DateTime
 import com.mohiva.play.silhouette.api._
 import jobs.SteamInfoUpdater._
-import models.daos.{ GameDAO, GraphObjects, SteamProfileDAO, SteamUserDAO }
+import models.daos.{GameDAO, GraphObjects, SteamProfileDAO, SteamUserDAO}
 import models.daos.SteamUserDAO.SteamId
 import models.services.ProfileGraphService
-import models.{ Game, ServiceProfile, SteamProfile }
+import models.{Game, ServiceProfile, SteamProfile}
 import play.modules.reactivemongo.MongoController
 
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ Await, Future, blocking }
+import scala.concurrent.{Await, Future, blocking}
 import scala.concurrent.duration._
 import akka.dispatch.RequiresMessageQueue
+import org.joda.time.{DateTime, Hours, Minutes}
 
 /**
  * Created by henrik on 2017-03-08.
  */
 
 class SteamInfoUpdater @Inject() (neo: ProfileGraphService, steamApi: SteamUserDAO, profileDAO: SteamProfileDAO, gameDAO: GameDAO) extends Actor with akka.actor.ActorLogging with RequiresMessageQueue[MyPrioQueueSemantics] {
+
+  private val lastUpdated = mutable.Map[AnyRef,DateTime]().par
+  private def isStale(element: AnyRef, duration: Minutes = Minutes.minutes(15)): Boolean = Minutes.minutesBetween(lastUpdated.getOrElse(element, DateTime.now), DateTime.now()).isLessThan(duration)
+  private def turnFresh(element: AnyRef): Unit = lastUpdated += element -> DateTime.now()
+
   override def receive: Receive = {
     case InitiateReload(users, prio) => {
       println(s"starting reload of users: $users")
@@ -33,9 +38,10 @@ class SteamInfoUpdater @Inject() (neo: ProfileGraphService, steamApi: SteamUserD
       self ! RefreshFriends(users, prio)
     }
     case RefreshAttributesAndStatus(users, prio) => {
+      val stale = users.filter(isStale(_))
       Future {
         blocking {
-          steamApi.processSummaries(steamApi.getUserSummaries(users))
+          steamApi.processSummaries(steamApi.getUserSummaries(stale))
         }
       }.onSuccess[Unit] {
         case profiles: Seq[SteamProfile] => {
@@ -46,74 +52,85 @@ class SteamInfoUpdater @Inject() (neo: ProfileGraphService, steamApi: SteamUserD
                 println(p)
                 neo.mergeProfile(p)
               }
-            }
+            }.onSuccess{ case _ => turnFresh(p.id)}
           }
         }
       }
     }
     case RefreshGames(users, prio) => {
-      users.foreach { user =>
+      val stale = users.map(_ -> 'ownedGames).filter(isStale(_))
+      stale.foreach { t =>
+        val user = t._1
         Future {
           blocking {
             steamApi.processGames(steamApi.getOwnedGames(user))
           }
         }.onSuccess[Unit] {
           case games: Seq[(Game, Int, Int)] => {
-            games.grouped(GraphObjects.CYPHER_MAX).foreach(gameList =>
-              Future {
+            games.grouped(GraphObjects.CYPHER_MAX).foreach { gameList =>
+              val f = Future {
                 blocking {
                   neo.updateGames(user, gameList)
                 }
-              }.onFailure { case e: Exception => log.error(e, e.getMessage) }
-            )
-            gameDAO.bufferedSave(games.map(tuple => tuple._1), maxWait = 5.minutes)
+              }
+              f.onFailure { case e: Exception => log.error(e, e.getMessage) }
+              f.onSuccess { case () => stale.foreach(turnFresh) }
+            }
+            val staleGames = games.map(tuple => tuple._1).filter(isStale(_, Minutes.minutes(120)))
+            gameDAO.bufferedSave(staleGames, maxWait = 5.minutes)
+            turnFresh(t)
           }
         }
       }
     }
     case RefreshFriends(users, prio) => {
-      users.foreach { user =>
-        {
+      val stale = users.map(_ -> 'friends).filter(isStale(_))
+      println(s"steaminfoupdater:89 $stale")
+      stale.foreach { t =>
+        val user = t._1
           Future {
             blocking {
               steamApi.processFriends(steamApi.getFriends(user))
             }
           }.onSuccess[Unit] {
             case friendTuples: Seq[(SteamId, Int)] => {
-              friendTuples.grouped(GraphObjects.CYPHER_MAX).foreach(friendList =>
-                Future {
+              friendTuples.grouped(GraphObjects.CYPHER_MAX).foreach { friendList =>
+                val f = Future {
                   blocking {
-                    neo.updateFriends(user, friendList)
+                    println(s"steaminfoupdater:101 ${neo.updateFriends(user, friendList)}")
                   }
-                }.onFailure { case e: Exception => log.error(e, e.getMessage) }
-              )
+                }
+                f.onFailure { case e: Exception => log.error(e, e.getMessage) }
+                f.onSuccess { case _ => println(s"steaminfoupdater:105 success!"); turnFresh(t)}
+              }
               val friendIds = friendTuples.map(_._1)
               self ! RefreshAttributesAndStatus(friendIds.toList, prio)
               self ! RefreshGames(friendIds, prio - 1)
               self ! RefreshFriendsOfFriends(friendIds, prio - 5)
             }
           }
-        }
       }
     }
     case RefreshFriendsOfFriends(users, prio) => {
-      users.foreach { user =>
-        {
+      val stale = users.map(_ -> 'friends).filter(isStale(_))
+      stale.foreach { t =>
+        val user = t._1
           Future {
             blocking {
               steamApi.processFriends(steamApi.getFriends(user))
             }
           }.onSuccess[Unit] {
             case friendTuples: Seq[(SteamId, Int)] => {
-              friendTuples.grouped(GraphObjects.CYPHER_MAX).foreach(friendList =>
-                Future {
+              friendTuples.grouped(GraphObjects.CYPHER_MAX).foreach { friendList =>
+                val f = Future {
                   blocking {
                     println("!" + neo.updateFriends(user, friendList))
                   }
-                }.onFailure { case e: Exception => log.error(e, e.getMessage) }
-              )
+                }
+                f.onFailure { case e: Exception => log.error(e, e.getMessage) }
+                f.onSuccess { case _ => println(s"steaminfoupdater:132 $user!"); turnFresh(t)}
+              }
             }
-          }
         }
       }
     }
@@ -141,12 +158,12 @@ class SteamInfoUpdater @Inject() (neo: ProfileGraphService, steamApi: SteamUserD
 
   self ! RefreshUserList(Int.MaxValue)
   self ! InitiateReload(userList)
-  private val cancellable =
+  /*private val cancellable =
     context.system.scheduler.schedule(
       5.minutes,
       20.minutes,
       self,
-      InitiateReload(userList))
+      InitiateReload(userList))*/
   private val listener = context.system.actorOf(Props(new Actor {
     def receive = {
       case e @ LoginEvent(identity, request) => println(request)

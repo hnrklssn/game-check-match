@@ -71,8 +71,8 @@ class Neo4jDAOImpl @Inject() (graphDb: Driver) extends ProfileGraphService {
       val i = t._2
       q +
         s"""MERGE (p$pid :SteamProfile {id: "$pid"})
-         |CREATE UNIQUE (p)-[r:FRIEND]-(p$pid)
-         |SET r.friendsSince = "$i"} """.stripMargin
+         |CREATE UNIQUE (p)-[r$pid:FRIEND]-(p$pid)
+         |SET r$pid.friendsSince = "$i" """.stripMargin
     })
     println(s"neo4jdaoimpl:77 $query")
     Future {
@@ -80,6 +80,7 @@ class Neo4jDAOImpl @Inject() (graphDb: Driver) extends ProfileGraphService {
         val session = graphDb.session()
         val result = session.run(query)
         session.close()
+        println(s"neo4jdaoimpl:83 $result")
         result
       }
     }

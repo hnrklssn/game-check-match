@@ -22,6 +22,12 @@ import scala.concurrent.{ Future, blocking }
  */
 class Neo4jDAOImpl @Inject() (graphDb: Driver) extends ProfileGraphService {
 
+  def constrain(): Unit = {
+    val constraintSession = graphDb.session()
+    constraintSession.run("CREATE CONSTRAINT ON (g :Game) ASSERT g.id IS UNIQUE")
+    constraintSession.run("CREATE CONSTRAINT ON (n :SteamProfile) ASSERT n.id IS UNIQUE")
+    constraintSession.close()
+  }
   def gameTimeTuple(game: com.lukaspradel.steamapi.data.json.ownedgames.Game) = (models.Game.fromApiModel(game), game.getPlaytimeForever)
 
   override def updateGames(user: SteamId, games: Seq[(Game, Int, Int)]): Unit = {
@@ -80,7 +86,7 @@ class Neo4jDAOImpl @Inject() (graphDb: Driver) extends ProfileGraphService {
         val session = graphDb.session()
         val result = session.run(query)
         session.close()
-        println(s"neo4jdaoimpl:83 $result")
+        println(s"neo4jdaoimpl:83 ${result.peek()}")
         result
       }
     }

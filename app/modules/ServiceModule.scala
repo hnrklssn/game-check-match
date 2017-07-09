@@ -3,6 +3,7 @@ package modules
 import javax.inject.Inject
 
 import akka.NotUsed
+import akka.actor.Deploy
 import akka.stream.OverflowStrategy
 import akka.stream.scaladsl.Source
 import com.google.inject.{ AbstractModule, Provides }
@@ -36,18 +37,17 @@ class ServiceModule extends AbstractModule with ScalaModule with AkkaGuiceSuppor
     bind[SteamUserDAO].to[SteamUserDAOImpl]
     bind[SteamProfileFactory].to[SteamProfileFactoryImpl]
     bindActor[SteamInfoUpdater]("updater")
-    bind[ProfileGraphService].to[Neo4jDAOImpl]
     bind[GameDAO].to[GameDAOImpl]
   }
 
-//  @Provides
-//  def allUserSummariesProvider(@Inject steamUserSummaries: Source[Seq[SteamProfile], NotUsed]): ServiceProfileSource = {
-//    steamUserSummaries.buffer(1, OverflowStrategy.dropTail).take(1) //if several services in future, merge streams here
-//  }
+  //  @Provides
+  //  def allUserSummariesProvider(@Inject steamUserSummaries: Source[Seq[SteamProfile], NotUsed]): ServiceProfileSource = {
+  //    steamUserSummaries.buffer(1, OverflowStrategy.dropTail).take(1) //if several services in future, merge streams here
+  //  }
 
-//  @Provides
-//  def steamSummariesProvider(@Inject steamUserDAO: SteamUserDAO, @Inject ids: List[SteamId], @Inject steamProfileFactory: SteamProfileFactory) =
-//    steamUserDAO.userSummaries(ids)
+  //  @Provides
+  //  def steamSummariesProvider(@Inject steamUserDAO: SteamUserDAO, @Inject ids: List[SteamId], @Inject steamProfileFactory: SteamProfileFactory) =
+  //    steamUserDAO.userSummaries(ids)
 
   @Provides
   def neoDriver(configuration: Configuration): Driver = {
@@ -55,6 +55,12 @@ class ServiceModule extends AbstractModule with ScalaModule with AkkaGuiceSuppor
     val username = configuration.underlying.as[String]("neo4j.username")
     val password = configuration.underlying.as[String]("neo4j.password")
     GraphDatabase.driver(url, AuthTokens.basic(username, password))
+  }
+
+  @Provides
+  def neoDAO(neo: Neo4jDAOImpl): ProfileGraphService = {
+    neo.constrain()
+    neo
   }
 
   @Provides

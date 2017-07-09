@@ -22,7 +22,7 @@ trait ServiceProfile extends Identity with SocialProfile {
   def register: Self
 
   override def equals(obj: scala.Any): Boolean = obj match {
-    case s: ServiceProfile => { println("equals"); s.id == id && s.service == service }
+    case s: ServiceProfile => s.id == id && s.service == service
     case _ => false
   }
 }

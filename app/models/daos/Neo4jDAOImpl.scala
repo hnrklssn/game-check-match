@@ -15,7 +15,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.concurrent.{ Future, blocking }
 
-//Driver driver = GraphDatabase.driver( "bolt://localhost:7687", AuthTokens.basic( "neo4j", "neo4j" ) );
+//Neo.ClientError.Transaction.TransactionTimedOut (time-out error code for reference)
 
 /**
  * Created by henrik on 2017-03-04.
@@ -30,7 +30,7 @@ class Neo4jDAOImpl @Inject() (graphDb: Driver) extends ProfileGraphService {
   }
   def gameTimeTuple(game: com.lukaspradel.steamapi.data.json.ownedgames.Game) = (models.Game.fromApiModel(game), game.getPlaytimeForever)
 
-  override def updateGames(user: SteamId, games: Seq[(Game, Int, Int)]): Unit = {
+  override def updateGames(user: SteamId, games: Seq[(Game, Int, Int)]): Future[Boolean] = {
     if (games.size > GraphObjects.CYPHER_MAX) {
       throw new java.lang.IllegalArgumentException("Too many games for cypher statement")
     }
@@ -49,12 +49,12 @@ class Neo4jDAOImpl @Inject() (graphDb: Driver) extends ProfileGraphService {
         val session = graphDb.session()
         val result = session.run(query)
         session.close()
-        result
+        !result.hasNext //true on success, method call to provoke exception on failure
       }
     }
   }
 
-  override def mergeProfile(user: SteamProfile): Unit = {
+  override def mergeProfile(user: SteamProfile): Future[Boolean] = {
     val name = user.displayName.map(c => if (GraphObjects.escapeChars.contains(c)) GraphObjects.escapeChars(c) else c).mkString
     val query = s"""MERGE (p${user.id}: SteamProfile {id: "${user.id}"}) SET p${user.id}.name = "$name" """
     Future {
@@ -62,12 +62,12 @@ class Neo4jDAOImpl @Inject() (graphDb: Driver) extends ProfileGraphService {
         val session = graphDb.session()
         val result = session.run(query)
         session.close()
-        result
+        !result.hasNext //true on success, method call to provoke exception on failure
       }
     }
   }
 
-  override def updateFriends(user: SteamId, friends: Seq[(SteamId, Int)]): Unit = {
+  override def updateFriends(user: SteamId, friends: Seq[(SteamId, Int)]): Future[Boolean] = {
     if (friends.size > GraphObjects.CYPHER_MAX) {
       throw new java.lang.IllegalArgumentException("Too many friends for cypher statement")
     }
@@ -86,8 +86,7 @@ class Neo4jDAOImpl @Inject() (graphDb: Driver) extends ProfileGraphService {
         val session = graphDb.session()
         val result = session.run(query)
         session.close()
-        println(s"neo4jdaoimpl:83 ${result.peek()}")
-        result
+        !result.hasNext //true on success, method call to provoke exception on failure
       }
     }
   }

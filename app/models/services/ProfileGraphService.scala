@@ -12,10 +12,10 @@ import scala.concurrent.Future
  */
 trait ProfileGraphService {
   def getGames(user: SteamId): Future[Seq[(GameId, Int, Int)]]
-  def updateGames(user: SteamId, games: Seq[(Game, Int, Int)])
+  def updateGames(user: SteamId, games: Seq[(Game, Int, Int)]): Future[Boolean]
   def getFriends(user: SteamId): Future[Seq[(SteamId, Int)]]
-  def updateFriends(user: SteamId, friends: Seq[(SteamId, Int)])
-  def mergeProfile(user: SteamProfile)
+  def updateFriends(user: SteamId, friends: Seq[(SteamId, Int)]): Future[Boolean]
+  def mergeProfile(user: SteamProfile): Future[Boolean]
   def recentMutualPlayTime(user: SteamId): Future[Seq[(SteamId, GameId)]]
   def mutualTotalGameTime(user: SteamId): Future[Seq[(SteamId, GameId)]]
   def trendingGames(amount: Int): Future[Seq[GameId]]

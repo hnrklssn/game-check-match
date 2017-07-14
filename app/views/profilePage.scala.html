@@ -1,6 +1,6 @@
-@(profile: ServiceProfile, friends: Seq[ServiceProfile], games: Seq[Game], commonFriends: Html)(implicit request: RequestHeader, messages: Messages, webJarAssets: WebJarAssets)
+@(profile: ServiceProfile, friends: Seq[ServiceProfile], games: Seq[Game], commonFriends: Html)(implicit request: RequestHeader, messages: Messages, webJarAssets: WebJarAssets, user: Option[ServiceProfile])
 
-@main(Messages("home.title"), Some(profile)) {
+@main(Messages("home.title")) {
     <div class="profile-large">
         <div class="user-profile profile-mini">
             <img class="avatar profile-item @profile.profileState" src="@profile.avatarUrl">

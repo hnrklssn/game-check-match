@@ -1,6 +1,6 @@
-@(game: Game, recommendations: Html)(implicit request: RequestHeader, messages: Messages, webJarAssets: WebJarAssets)
+@(game: Game, recommendations: Html)(implicit request: RequestHeader, messages: Messages, webJarAssets: WebJarAssets, user: Option[ServiceProfile])
 
-@main(Messages("home.title"), None) {
+@main(Messages("home.title")) {
     <div class="game-large">
         <div class="game-profile game-mini">
             <img class="game-logo game-item" src="https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/@{

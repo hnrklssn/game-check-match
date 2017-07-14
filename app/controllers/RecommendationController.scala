@@ -75,12 +75,13 @@ class RecommendationController @Inject() (steamUserDAO: SteamUserDAO, profileDAO
   }
 
   def recByGame(gameId: GameId) = silhouette.SecuredAction.async { implicit request =>
-    val user = request.identity.id
+    val user = request.identity
+    implicit val userOption = Some(user)
     val gameFuture: Future[Option[Game]] = gameDAO.find(gameId)
-    val similarInterestsFuture: Future[Seq[ServiceProfile]] = neo.peopleLikeYou(user, 20).flatMap(people => neo.filterHasGame(people, gameId)).flatMap { people => profileDAO.bulkFind(people.toList) }
+    val similarInterestsFuture: Future[Seq[ServiceProfile]] = neo.peopleLikeYou(user.id, 20).flatMap(people => neo.filterHasGame(people, gameId)).flatMap { people => profileDAO.bulkFind(people.toList) }
     for {
       gameOption <- gameFuture
-      friendsWithGameRec <- recommendFriendsWithGame(gameOption.get, user)
+      friendsWithGameRec <- recommendFriendsWithGame(gameOption.get, user.id)
       similar <- similarInterestsFuture
     } yield { println(similar); println(gameOption.get.toString); Ok(gamePage(gameOption.get, concatenateHtml(friendsWithGameRec, similarPeopleWithGameRec(similar, gameOption.get.toString)))) }
   }

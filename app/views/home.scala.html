@@ -1,6 +1,6 @@
 @(user: models.ServiceProfile)(implicit request: RequestHeader, messages: Messages, webJarAssets: WebJarAssets)
 
-@main(Messages("home.title"), Some(user)) {
+@main(Messages("home.title")) {
     <div class="user col-md-6 col-md-offset-3">
         <div class="row">
             <hr class="col-md-12" />
@@ -18,4 +18,4 @@
             </div>
         </div>
     </div>
-}
+}(request, messages, webJarAssets, user = Some(user))

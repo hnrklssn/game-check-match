@@ -45,6 +45,7 @@ class ProfileInfoController @Inject() (socialProviderRegistry: SocialProviderReg
   }
 
   def readProfile(id: String) = silhouette.UserAwareAction.async { implicit request =>
+    implicit val userOption: Option[ServiceProfile] = request.identity
     println("Reading!")
     println(users)
     println(users.size)
@@ -54,7 +55,7 @@ class ProfileInfoController @Inject() (socialProviderRegistry: SocialProviderReg
     val games: Future[List[Game]] = neo.getGames(id).flatMap { ids =>
       gameDAO.bulkFind(ids.map { _._1 }.toList)
     }
-    val mutualFriendsFuture: Future[Option[List[ServiceProfile]]] = request.identity.map { user =>
+    val mutualFriendsFuture: Future[Option[List[ServiceProfile]]] = userOption.map { user =>
       neo.mutualFriends(Seq(user.id, id))
         .flatMap(ids => profileDAO.bulkFind(ids.toList))
     } match {
@@ -72,7 +73,7 @@ class ProfileInfoController @Inject() (socialProviderRegistry: SocialProviderReg
     } yield {
       val mutualFriendsRecOpt: Option[Html] = for {
         mutualFriends <- mutualFriendsOption
-        user <- request.identity
+        user <- userOption
       } yield { println(mutualFriends); views.html.recommendations.mutualFriendsRec(mutualFriends, user.displayName) }
       Ok(views.html.profilePage(profileOption.get, fs, gs, mutualFriendsRecOpt.get))
     }

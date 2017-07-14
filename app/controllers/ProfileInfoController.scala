@@ -74,7 +74,7 @@ class ProfileInfoController @Inject() (socialProviderRegistry: SocialProviderReg
       val mutualFriendsRecOpt: Option[Html] = for {
         mutualFriends <- mutualFriendsOption
         user <- userOption
-      } yield { println(mutualFriends); views.html.recommendations.mutualFriendsRec(mutualFriends, user.displayName) }
+      } yield { println(mutualFriends); views.html.recommendations.mutualFriendsRec(mutualFriends, profileOption.get.displayName) }
       Ok(views.html.profilePage(profileOption.get, fs, gs, mutualFriendsRecOpt.get))
     }
     // Ok(mutualFriendsOr.

@@ -1,6 +1,6 @@
 @(profile: ServiceProfile, friends: Seq[ServiceProfile], games: Seq[Game], commonFriends: Html)(implicit request: RequestHeader, messages: Messages, webJarAssets: WebJarAssets, user: Option[ServiceProfile])
 
-@main(Messages("home.title")) {
+@main(Messages("profilepage.title", profile.displayName)) {
     <div class="profile-large">
         <div class="user-profile profile-mini">
             <img class="avatar profile-item @profile.profileState" src="@profile.avatarUrl">
@@ -12,22 +12,28 @@
         </div>
         <div class="row">
             <div class="col-md-4 col-lg-3">@commonFriends</div>
-            <span class="friends col-md-8 col-lg-6">
-            @for(groupOf2 <- friends.grouped(2)) {
+            <div class="col-md-8 col-lg-6">
                 <div class="row">
-                    @for(friend <- groupOf2) {
-                        <div class="col-md-6">@simpleMiniProfile(friend)</div>
+                    <span class="friends">
+                    @for(groupOf2 <- friends.grouped(2)) {
+                        <div class="row">
+                        @for(friend <- groupOf2) {
+                            <div class="col-md-6">@simpleMiniProfile(friend)</div>
+                        }
+                        </div>
                     }
+                    </span>
+                    <div class="games">
+                    @for(game <- games) {
+                        @simpleGameMini(game)
+                        <br>
+                        }
+                    </div>
                 </div>
-            }
-            </span>
-        </div>
-            <div class="games">
-            @for(game <- games) {
-                @simpleGameMini(game)
-                <br>
-                }
             </div>
+
+        </div>
+
 
     </div>
 }

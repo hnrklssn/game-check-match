@@ -4,24 +4,21 @@ invalid.credentials = Invalid credentials!
 access.denied = Access denied!
 could.not.authenticate = Could not authenticate with social provider! Please try again!
 
-home.title = Silhouette - Home
-sign.up.title = Silhouette - Sign Up
-sign.in.title = Silhouette - Sign In
-forgot.password.title = Silhouette - Forgot Password
-reset.password.title = Silhouette - Reset Password
-change.password.title = Silhouette - Change Password
-activate.account.title = Silhouette - Activate Account
+home.title = Game-Check-Match - Home
+sign.up.title = Game-Check-Match - Sign Up
+sign.in.title = Game-Check-Match - Sign In
+profilepage.title = Game-Check-Match - {0}''s profile
 
 toggle.navigation = Toggle navigation
 welcome.signed.in = Welcome, you are now signed in!
 
 sign.up.account = Sign up for a new account
-sign.in.credentials = Sign in with your credentials
 
 error = Error!
 info = Info!
 success = Success!
 home = Home
+profile.name = Profile name
 first.name = First name
 last.name = Last name
 full.name = Full name
@@ -45,7 +42,7 @@ activate.account = Activate Account
 current.password = Current password
 new.password = New password
 
-remember.me = Remember my login on this computer
+sign.in.welcome = Sign in via Steam and get matching, checking and gaming instantly!
 or.use.social = Or use your existing account on one of the following services to sign in:
 forgot.password.info = Please enter your email address and we will send you an email with further instructions to reset your password.
 strong.password.info = Strong passwords include numbers, letters and punctuation marks.
@@ -68,9 +65,6 @@ password.changed = Your password has been changed.
 google = Google
 facebook = Facebook
 twitter = Twitter
-vk = VK
-xing = Xing
-yahoo = Yahoo
 
 ##########
 # Emails

@@ -6,13 +6,11 @@ import models.Game.GameId
 import models.daos.SteamUserDAO.SteamId
 import models.services.ProfileGraphService
 import models.{ Game, SteamProfile }
-import org.neo4j.graphdb.factory.GraphDatabaseFactory
-import org.neo4j.graphdb.{ GraphDatabaseService, Label, RelationshipType }
-import collection.JavaConverters._
 import org.neo4j.driver.v1._
-import org.neo4j.driver.v1.Values.parameters
-import scala.concurrent.ExecutionContext.Implicits.global
+import org.neo4j.graphdb.{ Label, RelationshipType }
 
+import scala.collection.JavaConverters._
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ Future, blocking }
 
 //Neo.ClientError.Transaction.TransactionTimedOut (time-out error code for reference)

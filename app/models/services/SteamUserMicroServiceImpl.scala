@@ -1,14 +1,10 @@
 package models.services
 
-import java.util.UUID
 import javax.inject.Inject
 
 import com.mohiva.play.silhouette.api.LoginInfo
-import com.mohiva.play.silhouette.impl.providers.CommonSocialProfile
-import com.mohiva.play.silhouette.impl.providers.openid.SteamProvider
-import models.{ ServiceProfile, SteamProfile, User }
-import models.daos.{ SteamProfileDAO, UserDAO }
-import play.api.libs.concurrent.Execution.Implicits._
+import models.SteamProfile
+import models.daos.SteamProfileDAO
 import utils.auth.LoginInfoConverters._
 
 import scala.concurrent.Future

@@ -1,7 +1,6 @@
-@(signInForm: Form[forms.SignInForm.Data], socialProviders: com.mohiva.play.silhouette.impl.providers.SocialProviderRegistry)(implicit request: RequestHeader, messages: Messages, webJarAssets: WebJarAssets)
+@(socialProviders: com.mohiva.play.silhouette.impl.providers.SocialProviderRegistry)(implicit request: RequestHeader, messages: Messages, webJarAssets: WebJarAssets)
 
-@import com.mohiva.play.silhouette.impl.providers.oauth2.ClefProvider
-@import b3.inline.fieldConstructor
+
 
 @main(Messages("sign.in.title")) {
     <fieldset class="col-md-6 col-md-offset-3">

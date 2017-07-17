@@ -2,29 +2,19 @@ package controllers
 
 import javax.inject.Inject
 
-import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream._
-import akka.stream.scaladsl.{ Sink, Source }
-import com.mohiva.play.silhouette.api.{ LogoutEvent, Silhouette }
-import com.mohiva.play.silhouette.impl.providers.{ SocialProvider, SocialProviderRegistry }
-import models.ServiceProfile.{ Offline, Online }
+import akka.stream.scaladsl.Source
+import com.mohiva.play.silhouette.api.Silhouette
+import models.ServiceProfile
 import models.daos.SteamProfileDAO
-import models.{ ServiceProfile, SteamProfileImpl }
-import models.daos.ServiceUserDAO.ServiceProfileSource
 import play.api.i18n.{ I18nSupport, MessagesApi }
-import play.api.mvc.{ Action, AnyContent, Controller, Result }
+import play.api.mvc.{ Action, Controller }
 import utils.auth.DefaultEnv
-
-import scala.concurrent.duration._
-import scala.concurrent.Future
-import scala.concurrent._
-import scala.util.Success
 /**
  * Created by henrik on 2017-02-24.
  */
 class ProfileListController @Inject() (profileDAO: SteamProfileDAO, silhouette: Silhouette[DefaultEnv], val messagesApi: MessagesApi, implicit val webJarAssets: WebJarAssets) extends Controller with I18nSupport {
-  import controllers.ProfileListController._
   //import scala.concurrent.ExecutionContext.Implicits.global
   import play.api.libs.concurrent.Execution.Implicits.defaultContext
   implicit val system = ActorSystem("actor-system")

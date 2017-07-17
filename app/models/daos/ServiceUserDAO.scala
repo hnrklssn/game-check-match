@@ -1,11 +1,8 @@
 package models.daos
 
 import akka.NotUsed
-import akka.stream.OverflowStrategy
 import akka.stream.scaladsl.Source
-import com.google.inject.{ Inject, Provides }
-import com.mohiva.play.silhouette.api.services.IdentityService
-import models.{ ServiceProfile, SteamProfile }
+import models.ServiceProfile
 
 /**
  * Created by henrik on 2017-02-26.

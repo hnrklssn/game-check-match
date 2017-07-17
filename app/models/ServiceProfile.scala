@@ -28,7 +28,6 @@ trait ServiceProfile extends Identity with SocialProfile {
 }
 
 object ServiceProfile {
-  import Game.ordering
   implicit def ordering: Ordering[ServiceProfile] = Ordering.by { p: ServiceProfile => { (p.visible, p.currentlyPlaying, p.profileState, p.displayName) } }
   implicit def ordering2: Ordering[ProfileState] = Ordering.by(s => s.priority)
   type ServiceUserId = String

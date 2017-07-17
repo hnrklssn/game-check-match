@@ -3,7 +3,7 @@ package utils
 import java.time.LocalDateTime
 
 import scala.concurrent.duration.Duration
-import scala.concurrent.{ CanAwait, ExecutionContext, Future, TimeoutException }
+import scala.concurrent.{ CanAwait, ExecutionContext, Future }
 import scala.util.Try
 
 /**

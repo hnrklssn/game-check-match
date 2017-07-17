@@ -16,7 +16,7 @@ import com.mohiva.play.silhouette.impl.providers.oauth1.secrets.{ CookieSecretPr
 import com.mohiva.play.silhouette.impl.providers.oauth1.services.PlayOAuth1Service
 import com.mohiva.play.silhouette.impl.providers.oauth2._
 import com.mohiva.play.silhouette.impl.providers.oauth2.state.{ CookieStateProvider, CookieStateSettings, DummyStateProvider }
-import com.mohiva.play.silhouette.impl.providers.openid.{ SteamProvider, YahooProvider }
+import com.mohiva.play.silhouette.impl.providers.openid.YahooProvider
 import com.mohiva.play.silhouette.impl.providers.openid.services.PlayOpenIDService
 import com.mohiva.play.silhouette.impl.services._
 import com.mohiva.play.silhouette.impl.util._
@@ -41,25 +41,25 @@ import utils.auth.{ CustomSecuredErrorHandler, CustomUnsecuredErrorHandler, Defa
  * The Guice module which wires all Silhouette dependencies.
  */
 class SilhouetteModule extends AbstractModule with ScalaModule {
-//  println(
-//    """
-//      |sdfg
-//      |dsfg
-//      |asdfsdf!!!!!!!!!!!
-//      |asg
-//      |dfg
-//      |dfg
-//      |reg
-//      |asdgf
-//      |as
-//      |dfgd
-//      |fg
-//      |sdfg
-//      |dsf
-//      |g
-//      |dfg
-//      |sdfddfgdfgdfgdfg
-//    """.stripMargin)
+  //  println(
+  //    """
+  //      |sdfg
+  //      |dsfg
+  //      |asdfsdf!!!!!!!!!!!
+  //      |asg
+  //      |dfg
+  //      |dfg
+  //      |reg
+  //      |asdgf
+  //      |as
+  //      |dfgd
+  //      |fg
+  //      |sdfg
+  //      |dsf
+  //      |g
+  //      |dfg
+  //      |sdfddfgdfgdfgdfg
+  //    """.stripMargin)
 
   /**
    * Configures the module.
@@ -69,7 +69,6 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     bind[UnsecuredErrorHandler].to[CustomUnsecuredErrorHandler]
     bind[SecuredErrorHandler].to[CustomSecuredErrorHandler]
     bind[UserMicroService[SteamProfile]].to[SteamUserMicroServiceImpl]
-    bind[UserDAO].to[UserDAOImpl]
     bind[CacheLayer].to[PlayCacheLayer]
     bind[IDGenerator].toInstance(new SecureRandomIDGenerator())
     bind[PasswordHasher].toInstance(new BCryptPasswordHasher)
@@ -81,7 +80,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     bind[DelegableAuthInfoDAO[PasswordInfo]].toInstance(new InMemoryAuthInfoDAO[PasswordInfo])
     bind[DelegableAuthInfoDAO[OAuth1Info]].toInstance(new InMemoryAuthInfoDAO[OAuth1Info])
     bind[DelegableAuthInfoDAO[OAuth2Info]].toInstance(new InMemoryAuthInfoDAO[OAuth2Info])
-    bind[DelegableAuthInfoDAO[OpenIDInfo]].toInstance(new InMemoryAuthInfoDAO[OpenIDInfo])
+    //    bind[DelegableAuthInfoDAO[OpenIDInfo]].toInstance(new InMemoryAuthInfoDAO[OpenIDInfo])
   }
 
   /**
@@ -310,6 +309,19 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
 
     val settings = configuration.underlying.as[CookieStateSettings]("silhouette.oauth2StateProvider")
     new CookieStateProvider(settings, idGenerator, cookieSigner, clock)
+  }
+
+  /**
+   * Provides the implementation of the delegable OpenID auth info DAO.
+   *
+   * @param reactiveMongoApi The ReactiveMongo API.
+   * @param config The Play configuration.
+   * @return The implementation of the delegable OpenID auth info DAO.
+   */
+  @Provides
+  def provideOpenIDInfoDAO(reactiveMongoApi: ReactiveMongoApi, config: Configuration): DelegableAuthInfoDAO[OpenIDInfo] = {
+    implicit lazy val format = Json.format[OpenIDInfo]
+    new MongoAuthInfoDAO[OpenIDInfo](reactiveMongoApi, config)
   }
 
   /**

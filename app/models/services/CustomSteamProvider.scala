@@ -15,11 +15,9 @@
  */
 package models.services
 
-import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.api.util.HTTPLayer
 import com.mohiva.play.silhouette.impl.providers._
 import com.mohiva.play.silhouette.impl.providers.openid.BaseSteamProvider
-import com.mohiva.play.silhouette.impl.providers.openid.SteamProvider.ID
 import models.ServiceProfile
 import models.daos.SteamUserDAO
 import utils.auth.LoginInfoConverters.extractId

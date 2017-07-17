@@ -1,30 +1,23 @@
 package controllers
 
-import java.util.UUID
 import javax.inject.{ Inject, Named }
 
 import akka.actor.ActorRef
-import com.mohiva.play.silhouette.api.exceptions.ProviderException
-import com.mohiva.play.silhouette.api.{ LoginEvent, Silhouette }
-import com.mohiva.play.silhouette.impl.providers.{ SocialProvider, SocialProviderRegistry }
-import jobs.SteamInfoUpdater
+import com.mohiva.play.silhouette.api.Silhouette
+import com.mohiva.play.silhouette.impl.providers.SocialProviderRegistry
 import jobs.SteamInfoUpdater.InitiateReload
-import models.Game.GameId
-import models.{ Game, MutualFriendsRecommendation, Recommendation, ServiceProfile }
-import models.daos.{ GameDAO, SteamProfileDAO, SteamUserDAO }
 import models.daos.SteamUserDAO.SteamId
-import models.services.{ ProfileGraphService, UserMicroService }
-import play.api.i18n.{ I18nSupport, Messages, MessagesApi }
+import models.daos.{ GameDAO, SteamProfileDAO, SteamUserDAO }
+import models.services.ProfileGraphService
+import models.{ Game, ServiceProfile }
+import play.api.i18n.{ I18nSupport, MessagesApi }
 import play.api.mvc.{ Action, Controller }
 import play.twirl.api.Html
-import reactivemongo.api.commands.WriteError
 import utils.auth.DefaultEnv
 
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 import scala.concurrent._
 import scala.concurrent.duration._
-import scala.util.Try
 
 /**
  * Created by henrik on 2017-03-29.

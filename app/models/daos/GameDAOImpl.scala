@@ -4,13 +4,11 @@ import javax.inject.Inject
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.DateTime
+import models.Game
 import models.Game.GameId
-import models.{ Game, SteamProfile }
-import play.api.libs.json.Json
 import play.modules.reactivemongo.{ MongoController, ReactiveMongoApi, ReactiveMongoComponents }
-import reactivemongo.api.{ Cursor, ReadPreference }
 import reactivemongo.api.collections.bson.BSONCollection
-import reactivemongo.api.commands.WriteError
+import reactivemongo.api.{ Cursor, ReadPreference }
 import reactivemongo.bson.BSONDocument
 
 import scala.collection.mutable

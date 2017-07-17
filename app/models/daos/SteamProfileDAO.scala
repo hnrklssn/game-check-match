@@ -1,29 +1,21 @@
 package models.daos
 
-import java.util.UUID
 import javax.inject.Inject
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.DateTime
-import com.mohiva.play.silhouette.api.LoginInfo
+import models.SteamProfile
 import models.daos.SteamUserDAO.SteamId
-import models.{ ServiceProfile, SteamProfile, User }
-
-import scala.concurrent.{ ExecutionContext, Future, Promise }
 import play.api.libs.json._
-import play.api.mvc._
-import reactivemongo.api.{ Cursor, ReadPreference }
-import reactivemongo.play.json._
-import reactivemongo.play.json.collection._
 import play.modules.reactivemongo._
 import reactivemongo.api.collections.bson.BSONCollection
-import reactivemongo.api.commands.{ Upserted, WriteError }
+import reactivemongo.api.{ Cursor, ReadPreference }
 import reactivemongo.bson._
+import reactivemongo.play.json._
 
-import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable
 import scala.concurrent.duration._
-import scala.util.parsing.json.{ JSONArray, JSONObject }
+import scala.concurrent.{ ExecutionContext, Future, Promise }
 
 /**
  * Created by henrik on 2017-03-27.
@@ -87,6 +79,8 @@ class SteamProfileDAO @Inject() (val reactiveMongoApi: ReactiveMongoApi)(implici
     }
     writeFuture.map(_ => profile)
   }
+
+  //def update = ???
 
   private var promise: Option[Promise[Seq[SteamProfile]]] = None
   private var timeStamp: Option[DateTime] = None

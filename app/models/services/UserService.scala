@@ -5,7 +5,6 @@ import javax.inject.Inject
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.api.services.IdentityService
 import models.ServiceProfile
-import org.bouncycastle.asn1.dvcs.ServiceType
 
 import scala.concurrent.Future
 

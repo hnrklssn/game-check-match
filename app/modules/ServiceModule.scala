@@ -2,27 +2,15 @@ package modules
 
 import javax.inject.Inject
 
-import akka.NotUsed
-import akka.actor.Deploy
-import akka.stream.OverflowStrategy
-import akka.stream.scaladsl.Source
 import com.google.inject.{ AbstractModule, Provides }
-import com.mohiva.play.silhouette.api.util.{ CacheLayer, HTTPLayer }
-import com.mohiva.play.silhouette.impl.providers.OpenIDSettings
-import com.mohiva.play.silhouette.impl.providers.openid.SteamProvider
-import com.mohiva.play.silhouette.impl.providers.openid.services.PlayOpenIDService
 import jobs.SteamInfoUpdater
-import models.daos._
 import models._
-import models.daos.ServiceUserDAO.ServiceProfileSource
-import models.daos.SteamUserDAO.SteamId
-import models.services.{ ProfileGraphService, SteamUserMicroServiceImpl, UserMicroService, UserMicroServiceRegistry }
-import net.codingwell.scalaguice.ScalaModule
-import play.api.Configuration
-import play.api.libs.openid.OpenIdClient
+import models.daos._
+import models.services.{ ProfileGraphService, UserMicroService, UserMicroServiceRegistry }
 import net.ceedubs.ficus.Ficus._
-import net.ceedubs.ficus.readers.ArbitraryTypeReader._
-import org.neo4j.driver.v1.{ AccessMode, AuthTokens, Driver, GraphDatabase }
+import net.codingwell.scalaguice.ScalaModule
+import org.neo4j.driver.v1.{ AuthTokens, Driver, GraphDatabase }
+import play.api.Configuration
 import play.api.libs.concurrent.AkkaGuiceSupport
 
 /**

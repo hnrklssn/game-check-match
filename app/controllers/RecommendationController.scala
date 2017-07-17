@@ -5,16 +5,16 @@ import javax.inject.{ Inject, Named }
 import akka.actor.ActorRef
 import com.mohiva.play.silhouette.api.Silhouette
 import models.Game.GameId
-import models.{ FriendsWithGameRecommendation, Game, Recommendation, ServiceProfile }
 import models.daos.SteamUserDAO.SteamId
 import models.daos.{ GameDAO, SteamProfileDAO, SteamUserDAO }
 import models.services.ProfileGraphService
+import models.{ Game, ServiceProfile }
 import play.api.i18n.{ I18nSupport, MessagesApi }
 import play.api.mvc.{ Action, Controller }
 import play.twirl.api.Html
 import utils.auth.DefaultEnv
 import views.html.gamePage
-import views.html.recommendations.{ friendsWithGameRec, similarPeopleWithGameRec }
+import views.html.recommendations.similarPeopleWithGameRec
 import views.html.utils.concatenateHtml
 
 import scala.concurrent.Future

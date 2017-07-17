@@ -1,15 +1,14 @@
 package models
 
-import ServiceProfile._
 import com.lukaspradel.steamapi.data.json.playersummaries.Player
-import com.mohiva.play.silhouette.api.LoginInfo
 import models.Game.GameId
+import models.ServiceProfile._
 import utils.auth.LoginInfoConverters._
 
 /**
  * Created by henrik on 2017-02-23.
  */
-import SteamProfileImpl._
+import models.SteamProfileImpl._
 case class SteamProfileImpl(id: steamUserId, visible: Boolean, displayName: String, avatarUrl: String, profileState: ProfileState, currentlyPlaying: Game, isRegistered: Boolean = false) extends SteamProfile {
   override def isInGame: Boolean = currentlyPlaying.isDefined
 

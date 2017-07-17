@@ -4,7 +4,6 @@ import models.Game.GameId
 import models.daos.SteamUserDAO.SteamId
 import models.{ Game, SteamProfile }
 
-import scala.reflect.internal.Trees
 import scala.concurrent.Future
 
 /**

@@ -3,8 +3,8 @@ package models
 import java.util.UUID
 
 import com.mohiva.play.silhouette.api.LoginInfo
-import models.ServiceProfile.ServiceUserId
 import org.joda.time.DateTime
+import play.api.libs.json.Json
 
 /**
  * A token to authenticate a user against an endpoint for a short time period.
@@ -17,3 +17,7 @@ case class AuthToken(
   id: UUID,
   userID: LoginInfo,
   expiry: DateTime)
+
+object AuthToken {
+  implicit val jsonFormat = Json.format[AuthToken]
+}

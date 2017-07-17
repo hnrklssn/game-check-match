@@ -1,7 +1,8 @@
 package models
 
-import Game._
-import reactivemongo.bson.{ BSONDocument, BSONDocumentReader, BSONDocumentWriter }
+import models.Game._
+import reactivemongo.bson.{BSONDocument, BSONDocumentReader, BSONDocumentWriter}
+
 import scala.collection.JavaConverters._
 
 /**

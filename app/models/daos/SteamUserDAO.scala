@@ -1,17 +1,10 @@
 package models.daos
 
-import javax.inject.Inject
-
-import akka.NotUsed
-import akka.stream.scaladsl.Source
 import com.lukaspradel.steamapi.data.json.friendslist.GetFriendList
 import com.lukaspradel.steamapi.data.json.ownedgames.GetOwnedGames
 import com.lukaspradel.steamapi.data.json.playersummaries.GetPlayerSummaries
-import com.lukaspradel.steamapi.webapi.request.builders.SteamWebApiRequestFactory
 import models.Game._
-import models.{ Game, SteamProfile, SteamProfileFactory }
-
-import scala.concurrent.Future
+import models.{ Game, SteamProfile }
 
 /**
  * Created by henrik on 2017-02-22.
@@ -20,7 +13,7 @@ import scala.concurrent.Future
 trait SteamUserDAO {
   import models.daos.SteamUserDAO._
 
-//  def userSummaries(ids: List[SteamId]): Source[Seq[SteamProfile], NotUsed]
+  //  def userSummaries(ids: List[SteamId]): Source[Seq[SteamProfile], NotUsed]
   def getUserSummaries(ids: List[SteamId]): GetPlayerSummaries
   def processSummaries(summaries: GetPlayerSummaries): Seq[SteamProfile]
   //def bufferFetchProfiles(ids: Iterable[SteamId]): Future[Seq[SteamProfile]]

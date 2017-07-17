@@ -1,10 +1,7 @@
 package models.services
 
-import java.util.UUID
-
 import com.mohiva.play.silhouette.api.services.IdentityService
-import com.mohiva.play.silhouette.impl.providers.CommonSocialProfile
-import models.{ ServiceProfile, User }
+import models.ServiceProfile
 
 import scala.concurrent.Future
 
